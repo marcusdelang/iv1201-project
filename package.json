@@ -1,0 +1,20 @@
+{
+  "name": "iv1201-project",
+  "version": "1.0.0",
+  "description": "## Installation",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm start --prefix backend",
+    "build": "npm install --prefix backend; npm install --prefix frontend; npm run build --prefix frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarcusNilssonGithub/iv1201-project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarcusNilssonGithub/iv1201-project/issues"
+  },
+  "homepage": "https://github.com/MarcusNilssonGithub/iv1201-project#readme"
+}
