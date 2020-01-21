@@ -4,8 +4,9 @@ const axios = require('axios')
 describe('Filter function', () => {
   let server
 
-  beforeAll(() => {
-    server = require('./../src/bin/www')
+    beforeAll(() => {
+        console.log(__dirname);
+    server = require('/backend/src/bin/www')
   })
 
   afterAll(() => {
