@@ -9,3 +9,13 @@ install:
 script:
   - npm run lint
   - npm test
+
+  cache:
+    - node_modules
+  deploy:
+  provider: heroku
+  api_key:
+    secure: Fp4pwr5BUC5SVtq5ero2FKV2FkFqQpLPYnG4NK5tldN/zIi0omIHy0wmYLGgwnuiI+C739qXGpj05dmb4dNToKq2YPZhvC8Lq+QvTsm+HYRYjj1v5cWCVW+WAaTPwoswkF5PsLOGf5Ou+CS9h6xzBZq2bVXU+GRpqmHuYWBzNlCrA76qRYNJpgqo/0u5REmxB7VIh4F9ON4z4uDhhG3a4AoyA/pdkJJgFUla7dnnQhAAqq4xtqW8WmE6Hi6KoBec4X2dTs8AftGUhDbi0BamPjNyU1oRRFga7SJToWC3Osy3zZT4VIflzbP6jsSwzsHn9fmoPY5NxGIR/wBzQP+VcBIqb6rGRNiwoiWrM/0TYn5TNNGsH3my1WGsIIIrxcWt6+9UZ2Nu0F03K0rafIdMeeS6BSQY24mpYDKE9ekaQWuNf1Lb59fbrDOBllEz83St6+oaUhKLyUNFN67yNum9KjdIKkqZC4ALk3P+n/pS+WJpPonqIrbA1V1k0dHOytAF8bELtPiSa8E/mLS90zODsJiVvU/2qmJs3s/B/b7iIUAc/2v4JKZqzIWGTkZSmjmenwO/LeTjCm2mf8KKP6Jw5pVCa5SLOOz6QoVyVTbUEeDTNWwIrx1i11qd6aIBJZeXiKN1atF0oUuSggVx9YsbS25imV0NEqVLgdoy7nH9Gmo=
+  app: recruitment-app-iv1201
+  on:
+    repo: marcusnilssongithub/iv1201-project
