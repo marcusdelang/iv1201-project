@@ -5,7 +5,7 @@ describe('Filter function', () => {
   let server
 
   beforeAll(() => {
-    server = require('../src/bin/www')
+    server = require('./../src/bin/www')
   })
 
   afterAll(() => {
