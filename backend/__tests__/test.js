@@ -6,7 +6,7 @@ describe('Filter function', () => {
 
     beforeAll(() => {
         console.log(__dirname);
-    server = require(__dirname + '/../src/bin/www')
+    server = require('../src/bin/www')
   })
 
   afterAll(() => {
