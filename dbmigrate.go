@@ -9,16 +9,20 @@ import (
 )
 
 const DUMPFILE = "database_dump.sql"	// target file
-const NULLDATA = "REPLACEME"			// custom placeholder text to replace NULL values with
+const NULLDATA = "REPLACEME"	// custom placeholder text to replace NULL values
 
 type NullString struct {
 	sql.NullString
 }
 
 func main() {
-	// placeholder local db
-	db, err := sql.Open("mysql",
-		"iv1201:leif@tcp(127.0.0.1:3306)/iv1201mysql")
+	USER := os.Getenv("IV1201_DB_USER")
+	PW := os.Getenv("IV1201_DB_PW")
+	PROTOCOL := os.Getenv("IV1201_DB_PROTOCOL")
+	IP := os.Getenv("IV1201_DB_IP")
+	DBNAME := os.Getenv("IV1201_DB_NAME")
+
+	db, err := sql.Open("mysql", USER+":"+PW+"@"+PROTOCOL+"("+IP+")/"+DBNAME)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,21 +34,40 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// remove previous and create new dump file
-	os.Remove(DUMPFILE)
-	os.Create(DUMPFILE)
+	err = os.Remove(DUMPFILE)
+	if err != nil {
+		log.Println("No previous dump file found to overwrite")
+	}
+
+	_, err = os.Create(DUMPFILE)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	readTableContent(db)
 }
 
 func readTableContent(db *sql.DB) {
-	// call the db and for each table read each row
-		// for each row write to file
-	migrateRole(db)
-	migratePerson(db)
-	migrateAvailability(db)
-	migrateCompetence(db)
-	migrateCompetenceProfile(db)
+	err := migrateRole(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = migratePerson(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = migrateAvailability(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = migrateCompetence(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = migrateCompetenceProfile(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func migrateRole(db *sql.DB) error {
@@ -85,31 +108,29 @@ func migratePerson(db *sql.DB) error {
 
 	for rows.Next() {
 		var (
-			person_id, ssn, role_id, name, surname, email, password, username NullString
+			person_id, name, surname, ssn, email, password, role_id, username NullString
 		)
 		err := rows.Scan(&person_id, &name, &surname, &ssn, &email, &password, &role_id, &username)
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		// TODO consider if handling lack of data should be done more explicitly
 		if person_id.Valid != true { person_id.String = NULLDATA }
-		if ssn.Valid != true { ssn.String = NULLDATA }
-		if role_id.Valid != true { role_id.String = NULLDATA }
 		if name.Valid != true { name.String = NULLDATA }
 		if surname.Valid != true { surname.String = NULLDATA }
+		if ssn.Valid != true { ssn.String = NULLDATA }
 		if email.Valid != true { email.String = NULLDATA }
 		if password.Valid != true { password.String = NULLDATA }
+		if role_id.Valid != true { role_id.String = NULLDATA }
 		if username.Valid != true { username.String = NULLDATA }
 
-		fmt.Println(person_id.String, name.String,
-			surname.String, ssn.String, email.String,
-			password.String, role_id.String, username.String)
-		row := "INSERT INTO person (person_id, name, " +
-			"surname, " +
-			"ssn, email, password, " +
-			"role_id, username) VALUES (" + person_id.String + ", '" + name.String + "', '" +
-			surname.String +"', '" + ssn.String + "', '" + email.String + "', '" +
-			password.String +"', " + role_id.String + ", '" + username.String + "');"
+		fmt.Println(person_id.String, name.String, surname.String, ssn.String,
+			email.String, password.String, role_id.String, username.String)
+
+		row := "INSERT INTO person (person_id, name, surname, ssn, email, password, role_id, username) VALUES (" +
+			person_id.String + ", '" + name.String + "', '" + surname.String +"', '" + ssn.String + "', '" +
+			email.String + "', '" + password.String +"', " + role_id.String + ", '" + username.String + "');"
 		writeToFile(row)
 	}
 	if err := rows.Err(); err != nil {
@@ -140,7 +161,8 @@ func migrateAvailability(db *sql.DB) error {
 		if to_date.Valid != true { to_date.String = NULLDATA }
 
 		fmt.Println(availability_id.String, person_id.String, from_date.String, to_date.String)
-		output := "INSERT INTO availability (availabilty_id, person_id, from_date, to_date) VALUES (" +
+
+		output := "INSERT INTO availability (availability_id, person_id, from_date, to_date) VALUES (" +
 			availability_id.String + ", " + person_id.String + ", '" + from_date.String + "', '"+ to_date.String + "');"
 		writeToFile(output)
 	}
@@ -170,6 +192,7 @@ func migrateCompetence(db *sql.DB) error {
 		if name.Valid != true { name.String = NULLDATA }
 
 		fmt.Println(competence_id.String, name.String)
+
 		output := "INSERT INTO competence (competence_id, name) VALUES (" + competence_id.String + ", '" + name.String + "');"
 		writeToFile(output)
 	}
@@ -201,6 +224,7 @@ func migrateCompetenceProfile(db *sql.DB) error {
 		if years_of_experience.Valid != true { years_of_experience.String = NULLDATA }
 
 		fmt.Println(competence_profile_id.String, person_id.String, competence_id.String, years_of_experience.String)
+
 		output := "INSERT INTO competence_profile (competence_profile_id, person_id, competence_id, years_of_experience) VALUES (" +
 			competence_profile_id.String + ", " + person_id.String + ", " + competence_id.String + ", " + years_of_experience.String + ");"
 		writeToFile(output)
@@ -226,12 +250,3 @@ func writeToFile(input string) error {
 	}
 	return nil
 }
-
-/**
-
-DONE set up test DB - leifscript++
-TODO fix proper statement
-TODO take row data and write as INSERT statements
-TODO check so all types have correct INSERT '' or lack of those for type, see e.g. ssn for person which is varchar
- */
-
