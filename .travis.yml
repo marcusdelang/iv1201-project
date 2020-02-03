@@ -1,13 +1,21 @@
 language: node_js
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database travis-postgres;' -U postgres
+  - psql -U postgres -d travis-postgres -a -f src/integration/build.sql 
+env:
+  - PGPORT=5432
+  - DATABASE_URL=
 node_js:
-- '10'
+  - '10'
 cache:
   directories:
   - node_modules
 install:
-- npm install --prefix backend
+  - npm install --prefix backend
 script:
-- cd backend
-- npm run lint
-- npm test
+  - cd backend
+  - npm run lint
+  - npm test
 
