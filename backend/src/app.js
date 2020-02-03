@@ -3,9 +3,7 @@ const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
 const path = require('path')
-
 const apiRouter = require('./routes/api')
-
 const app = express()
 
 app.use(logger('dev'))
@@ -35,7 +33,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500)
-  res.render('error')
+  res.send('error')
 })
 
 module.exports = app
