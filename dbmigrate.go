@@ -6,6 +6,7 @@ import (
 	"log"
 	_ "mysql"
 	"os"
+	"strings"
 )
 
 const DUMPFILE = "database_dump.sql"	// target file
@@ -23,6 +24,7 @@ func main() {
 	DBNAME := os.Getenv("IV1201_DB_NAME")
 
 	db, err := sql.Open("mysql", USER+":"+PW+"@"+PROTOCOL+"("+IP+")/"+DBNAME)
+	//db, err := sql.Open("mysql", "iv1201:leif@tcp(127.0.0.1:3306)/iv1201mysql")	// local test db, not reachable from internet
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,6 +49,22 @@ func main() {
 	readTableContent(db)
 }
 
+func writeToFile(input string) error {
+	file, err := os.OpenFile(DUMPFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	if _, err := file.WriteString(input + "\n"); err != nil {
+		log.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		log.Fatal(err)
+	}
+	return nil
+}
+
 func readTableContent(db *sql.DB) {
 	err := migrateRole(db)
 	if err != nil {
@@ -68,6 +86,10 @@ func readTableContent(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = checkApplications(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func migrateRole(db *sql.DB) error {
@@ -86,10 +108,12 @@ func migrateRole(db *sql.DB) error {
 			log.Fatal(err)
 		}
 
+		// TODO consider if handling lack of data should be done more explicitly
 		if role_id.Valid != true { role_id.String = NULLDATA }
 		if name.Valid != true { name.String = NULLDATA }
 
 		fmt.Println(role_id.String, name.String)
+		// TODO do this using sql parameters instead of string concatenation to rule out injections
 		output := "INSERT INTO role (role_id, name) VALUES (" + role_id.String + ", '" + name.String + "');"
 		writeToFile(output)
 	}
@@ -115,7 +139,6 @@ func migratePerson(db *sql.DB) error {
 			log.Fatal(err)
 		}
 
-		// TODO consider if handling lack of data should be done more explicitly
 		if person_id.Valid != true { person_id.String = NULLDATA }
 		if name.Valid != true { name.String = NULLDATA }
 		if surname.Valid != true { surname.String = NULLDATA }
@@ -132,6 +155,7 @@ func migratePerson(db *sql.DB) error {
 			person_id.String + ", '" + name.String + "', '" + surname.String +"', '" + ssn.String + "', '" +
 			email.String + "', '" + password.String +"', " + role_id.String + ", '" + username.String + "');"
 		writeToFile(row)
+
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -235,17 +259,50 @@ func migrateCompetenceProfile(db *sql.DB) error {
 	return nil
 }
 
-func writeToFile(input string) error {
-	file, err := os.OpenFile(DUMPFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func checkApplications(db *sql.DB) error {
+	applicant, err := db.Query("SELECT person_id from person")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer applicant.Close()
 
-	if _, err := file.WriteString(input + "\n"); err != nil {
-		log.Fatal(err)
+	for applicant.Next() {
+		var (
+			person_id NullString
+		)
+		err := applicant.Scan(&person_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		applicantID := person_id
+
+		// TODO do through a join or the like instead of nested db calls per row
+		availability, err := db.Query("SELECT person_id from availability")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer availability.Close()
+
+		for availability.Next() {
+			var (
+				availPerson_id NullString
+			)
+			err := availability.Scan(&availPerson_id)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if strings.Compare(applicantID.String, availPerson_id.String) == 0 {
+				output := "INSERT INTO application (version, person_id, status) VALUES (1, " + availPerson_id.String + ", 'unhandled');"
+				writeToFile(output)
+			}
+		}
+		if err := availability.Err(); err != nil {
+			log.Fatal(err)
+		}
 	}
-	if err := file.Close(); err != nil {
+	if err := applicant.Err(); err != nil {
 		log.Fatal(err)
 	}
 	return nil
