@@ -47,7 +47,7 @@ submitForm = async (e) => {
         console.log(this.state)        
         this.setState({ validated: true });
     } else {
-        const response = await axios.post('http://130.229.185.151:3001/api/user', {
+        const response = await axios.post('/api/user', {
             user: {
                 name: this.state.name,
                 surname: this.state.surname,
