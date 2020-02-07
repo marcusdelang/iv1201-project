@@ -9,5 +9,5 @@ install:
 script:
 - cd backend
 - npm run lint
-- npm test
+- npm run test-travis
 
