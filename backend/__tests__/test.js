@@ -25,6 +25,7 @@ describe('Endpoints: ', () => {
     test('GET => It should return the API index page', async (done) => {
       const res = await axios.get('http://localhost:3001/api/')
       fs.readFile(path.join(__dirname, '..', 'src', 'views', 'index.html'), (err, fileData) => {
+        if (err) throw err
         expect(res.data).toEqual(fileData.toString())
         done()
       })
@@ -48,5 +49,3 @@ describe('Endpoints: ', () => {
     })
   })
 })
-
-

@@ -4,6 +4,6 @@ const { dbConnectionString } = require('./dbconfig')
 const db = new Client({
   connectionString: dbConnectionString
 })
-db.connect();
+db.connect()
 
 module.exports = db

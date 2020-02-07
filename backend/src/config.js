@@ -5,4 +5,3 @@ module.exports = {
   port: port || '3001',
   dbConnectionString: dbConnectionString
 }
-
