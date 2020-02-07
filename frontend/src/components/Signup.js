@@ -26,20 +26,16 @@ class Signup extends React.Component {
         const {id, value} = e.target;
         this.setState({
             [id]: value
-        })
-        const errors = this.state.errors;
-
+        })/*
         if (id === 'ssn') {
-                errors.ssn =
+                const errors =
                     value.length < 10
                         ? 'Has to be a 10 digit number!'
                         : ''
         this.setState({ errors, [id]: value }, () => {
             console.log(errors)
         })
-        }
-
-        
+        }  */
     }
 
 submitForm = async (e) => {
@@ -51,7 +47,7 @@ submitForm = async (e) => {
         console.log(this.state)        
         this.setState({ validated: true });
     } else {
-        const response = await axios.post('http://130.229.141.80:3001/api/user', {
+        const response = await axios.post('http://130.229.185.151:3001/api/user', {
             user: {
                 name: this.state.name,
                 surname: this.state.surname,
@@ -62,6 +58,7 @@ submitForm = async (e) => {
             }
         })            
         this.setState({ validated: false });
+        console.log(this.state)
         console.log(response.status);
         this.setState({status: response.status})
     }
@@ -132,7 +129,7 @@ render() {
 
                         <Form.Group style={columnMargin} as='Col' controlId="ssn">
                             <Form.Label>Social Security Number</Form.Label>
-                            <Form.Control isInvalid={this.state.errors} required as="input" placeholder="yymmdd-xxxx" onChange={this.handleChange} />
+                            <Form.Control required as="input" placeholder="yymmdd-xxxx" onChange={this.handleChange} />
                             <Form.Control.Feedback type="invalid">
                                 {this.state.errors.ssn}
                             </Form.Control.Feedback>
@@ -146,7 +143,6 @@ render() {
                 </Form>
             </Card.Body>
         </Card>
-        {this.state.status === 404 || 400 ? <h1> ERROR {this.state.status} </h1> : ''}
         </div>
     );
 }
