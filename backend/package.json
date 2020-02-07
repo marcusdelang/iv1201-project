@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "start": "env NODE_ENV=production node ./src/bin/www",
-    "dev": "env NODE_ENV=development env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp nodemon ./src/bin/www",
+    "dev": "nodemon ./src/bin/www",
     "lint": "eslint . --fix",
     "test-travis": "env NODE_ENV=travis ./node_modules/.bin/jest",
     "test": "env NODE_ENV=development env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp ./node_modules/.bin/jest"

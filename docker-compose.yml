@@ -1,0 +1,24 @@
+version: '3'
+services:
+  app:
+    build: .
+    depends_on: 
+      - dev_db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@dev_db:5432/recapp
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "80:3000"
+    command: npm run dev --prefix backend
+    volumes:
+      - .:/app/
+      - /app/node_modules
+  dev_db:
+    image: postgres:12
+    ports:
+      - "35432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: recapp
