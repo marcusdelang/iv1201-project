@@ -15,7 +15,7 @@ services:
       - .:/app/
       - /app/node_modules
   dev_db:
-    image: postgres:12
+    build: database/
     ports:
       - "35432:5432"
     environment:
