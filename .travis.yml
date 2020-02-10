@@ -6,8 +6,8 @@ node_js:
 cache:
   directories:
   - node_modules
-install:
-  - docker-compose up
+before_script:
+  - docker-compose up &
 script:
   docker exec -it iv1201-project_app_1 npm test --prefix backend
 
