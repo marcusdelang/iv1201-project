@@ -1,9 +1,10 @@
-version: '3'
+version: '2.1'
 services:
   app:
     build: .
     depends_on: 
-      - dev_db
+       dev_db:
+          condition: service_healthy
     environment:
       DATABASE_URL: postgres://postgres:postgres@dev_db:5432/recapp
       NODE_ENV: development
@@ -22,3 +23,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: recapp
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "recapp", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+
+ 

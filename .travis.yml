@@ -1,13 +1,14 @@
 language: node_js
+services:
+  - docker
 node_js:
 - '10'
 cache:
   directories:
   - node_modules
 install:
-- npm install --prefix backend
+  - docker-compose up
 script:
-- cd backend
-- npm run lint
-- npm run test-travis
+  docker exec -it iv1201-project_app_1 npm test --prefix backend
+
 
