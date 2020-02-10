@@ -6,9 +6,7 @@ node_js:
 cache:
   directories:
   - node_modules
-install:
-  - docker-compose up
+before_script:
+  - docker-compose up --build &
 script:
-  docker exec -it iv1201-project_app_1 npm test --prefix backend
-
-
+  while :; do if [ $(docker ps | grep -i iv1201 | wc -l) = 2 ]; then docker exec app npm test --prefix backend; exit $?; fi; done;

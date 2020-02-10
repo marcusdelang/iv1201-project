@@ -1,6 +1,7 @@
 version: '2.1'
 services:
   app:
+    container_name: app
     build: .
     depends_on: 
        dev_db:
@@ -16,6 +17,7 @@ services:
       - .:/app/
       - /app/node_modules
   dev_db:
+    container_name: dev_db
     build: database/
     ports:
       - "35432:5432"
