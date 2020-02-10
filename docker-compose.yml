@@ -1,0 +1,34 @@
+version: '2.1'
+services:
+  app:
+    container_name: app
+    build: .
+    depends_on: 
+       dev_db:
+          condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@dev_db:5432/recapp
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "80:3000"
+    command: npm run dev --prefix backend
+    volumes:
+      - .:/app/
+      - /app/node_modules
+  dev_db:
+    container_name: dev_db
+    build: database/
+    ports:
+      - "35432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: recapp
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "recapp", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+
+ 
