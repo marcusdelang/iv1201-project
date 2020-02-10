@@ -16,7 +16,7 @@ const user = {
 describe('Endpoint: /api', () => {
   const fs = require('fs')
   test('GET => It should return the API index page', async (done) => {
-    const res = await axios.get(`http://localhost:${port}/api/`)
+    const res = await axios.get(`http://localhost:${port}/apiNOT/`)
     fs.readFile(path.join(__dirname, '..', 'src', 'views', 'index.html'), (err, fileData) => {
       if (err) throw err
       expect(res.data).toEqual(fileData.toString())
