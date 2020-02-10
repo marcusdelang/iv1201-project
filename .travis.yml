@@ -10,8 +10,3 @@ before_script:
   - docker-compose up --build &
 script:
   while :; do if [ $(docker ps | grep -i iv1201 | wc -l) = 2 ]; then docker exec app npm test --prefix backend; exit $?; fi; done;
-deploy:
-  provider: heroku
-  api_key:
-    secure: Fb+QvZPe6QWgvvazx5AZWu1pfuamB2KQIH+SQLBNkYJQPbRUgjRkoJCrVjQ+6mzYbkkIF3P/zbVWpqN16LCn+1zO0a3k/5aYqjUoIr9KcgMpUPF02Acs1aFLHWTCWqQH1AschE6EdV9JENUOMLuowM2VDM1I7Eqz4zIZuF4FK6D8mOYN92ZLp7SEF3039uMYELE5X+YgKjaANwEdv57PlL9rhbiOimzgfXgY6KIY80bLvkUOAylWEckzXJDLWbPJlNvt1U/a9IpPq2c5aofdO1E2iz+dXOcnU+TkVRYGp4nJLiJzvs6VcQ+KplxVd7Z/SCH5FgZOb+oRItaqT2OmfhQsteKeKtpHuJQ7ob3H21p2uhZM8CVR0aSQYriCW8FCBHONb3Pofh3tA5lhLTZ3cHKxl7iNS/JBmKNyYAn/8UBfLzXj/8/lNyT3ikpQoaL6CAADs+8upfxBL2KxnmIsuSAT61CxLG5EbQYDsfD/g+AyagpBxxLziaUnNzQCzcnH959JcWvbuXAJAX06IwLr//ZRD0MtWgSuR4nInNiuhSJo58S0ekm7r339WFMf7hyPk/3oiNsZaDcXnCktPTwxj0wXrfdRe8xKNL3n5whxIBAtw5bkoQh7gROTDoGt6pWyYihoNdYxdamB9mWh6djWfASWK0J/mjZqGlciCLxN/Qg=
-  app: iv1201-project
