@@ -6,25 +6,27 @@ import (
 	"log"
 	_ "mysql"
 	"os"
-	"strings"
 )
 
-const DUMPFILE = "database_dump.sql"	// target file
-const NULLDATA = "REPLACEME"	// custom placeholder text to replace NULL values
+// target file
+const MIGRATIONFILE = "database_dump.sql"
 
-type NullString struct {
-	sql.NullString
-}
+// custom placeholders to replace NULL values
+const PLACEHOLDERTEXT = "thisIsAStringOfWordsThatIsWrittenInPlaceOfProperDataInCaseAPasswordOrEmailOrSomethingElseIsMissingInTheOriginalDatabase"
+const PLACEHOLDERINT = 133747116969666
 
 func main() {
+	// Read environment variables
 	USER := os.Getenv("IV1201_DB_USER")
 	PW := os.Getenv("IV1201_DB_PW")
 	PROTOCOL := os.Getenv("IV1201_DB_PROTOCOL")
 	IP := os.Getenv("IV1201_DB_IP")
 	DBNAME := os.Getenv("IV1201_DB_NAME")
 
+	// create a db connection pool using the provided environment variables
 	db, err := sql.Open("mysql", USER+":"+PW+"@"+PROTOCOL+"("+IP+")/"+DBNAME)
-	//db, err := sql.Open("mysql", "iv1201:leif@tcp(127.0.0.1:3306)/iv1201mysql")	// local test db, not reachable from internet
+	// local test db, not reachable from internet
+	//db, err := sql.Open("mysql", "iv1201:leif@tcp(127.0.0.1:3306)/iv1201mysql")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,12 +38,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = os.Remove(DUMPFILE)
+	err = os.Remove(MIGRATIONFILE)
 	if err != nil {
 		log.Println("No previous dump file found to overwrite")
+	} else {
+		log.Println("Deleted previous dump file")
 	}
 
-	_, err = os.Create(DUMPFILE)
+	_, err = os.Create(MIGRATIONFILE)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,8 +53,10 @@ func main() {
 	readTableContent(db)
 }
 
+// Writes the provided input to a file specified in the constant MIGRATIONFILE
+// Input: a string that shall be written to file
 func writeToFile(input string) error {
-	file, err := os.OpenFile(DUMPFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(MIGRATIONFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,6 +71,8 @@ func writeToFile(input string) error {
 	return nil
 }
 
+// Call the functions that read each table one by one
+// Input: a database handle
 func readTableContent(db *sql.DB) {
 	err := migrateRole(db)
 	if err != nil {
@@ -92,6 +100,8 @@ func readTableContent(db *sql.DB) {
 	}
 }
 
+// Read data from the table "role" and export it to the dumpfile
+// Input: a database handle
 func migrateRole(db *sql.DB) error {
 	rows, err := db.Query("SELECT role_id, `name` from role")
 	if err != nil {
@@ -101,21 +111,25 @@ func migrateRole(db *sql.DB) error {
 
 	for rows.Next() {
 		var (
-			role_id, name NullString
+			roleId sql.NullInt64
+			name   sql.NullString
 		)
-		err := rows.Scan(&role_id, &name)
+		err := rows.Scan(&roleId, &name)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		// TODO consider if handling lack of data should be done more explicitly
-		if role_id.Valid != true { role_id.String = NULLDATA }
-		if name.Valid != true { name.String = NULLDATA }
+		if roleId.Valid != true {
+			roleId.Int64 = PLACEHOLDERINT
+		}
+		if name.Valid != true {
+			name.String = PLACEHOLDERTEXT
+		}
 
-		fmt.Println(role_id.String, name.String)
-		// TODO do this using sql parameters instead of string concatenation to rule out injections
-		output := "INSERT INTO role (role_id, name) VALUES (" + role_id.String + ", '" + name.String + "');"
-		writeToFile(output)
+		log.Println(roleId.Int64, name.String)
+
+		row := fmt.Sprintf("INSERT INTO role (role_id, name) VALUES (%d, '%s');", roleId.Int64, name.String)
+		writeToFile(row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -123,6 +137,8 @@ func migrateRole(db *sql.DB) error {
 	return nil
 }
 
+// Read data from the table "person" and export it to the dumpfile
+// Input: a database handle
 func migratePerson(db *sql.DB) error {
 	rows, err := db.Query("SELECT `person_id`, `name`, `surname`, ssn, `email`, `password`, role_id, `username` from person")
 	if err != nil {
@@ -132,28 +148,42 @@ func migratePerson(db *sql.DB) error {
 
 	for rows.Next() {
 		var (
-			person_id, name, surname, ssn, email, password, role_id, username NullString
+			personId, roleId                              sql.NullInt64
+			name, surname, ssn, email, password, username sql.NullString
 		)
-		err := rows.Scan(&person_id, &name, &surname, &ssn, &email, &password, &role_id, &username)
+		err := rows.Scan(&personId, &name, &surname, &ssn, &email, &password, &roleId, &username)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if person_id.Valid != true { person_id.String = NULLDATA }
-		if name.Valid != true { name.String = NULLDATA }
-		if surname.Valid != true { surname.String = NULLDATA }
-		if ssn.Valid != true { ssn.String = NULLDATA }
-		if email.Valid != true { email.String = NULLDATA }
-		if password.Valid != true { password.String = NULLDATA }
-		if role_id.Valid != true { role_id.String = NULLDATA }
-		if username.Valid != true { username.String = NULLDATA }
+		if personId.Valid != true {
+			personId.Int64 = PLACEHOLDERINT
+		}
+		if name.Valid != true {
+			name.String = PLACEHOLDERTEXT
+		}
+		if surname.Valid != true {
+			surname.String = PLACEHOLDERTEXT
+		}
+		if ssn.Valid != true {
+			ssn.String = PLACEHOLDERTEXT
+		}
+		if email.Valid != true {
+			email.String = PLACEHOLDERTEXT
+		}
+		if password.Valid != true {
+			password.String = PLACEHOLDERTEXT
+		}
+		if roleId.Valid != true {
+			roleId.Int64 = PLACEHOLDERINT
+		}
+		if username.Valid != true {
+			username.String = PLACEHOLDERTEXT
+		}
 
-		fmt.Println(person_id.String, name.String, surname.String, ssn.String,
-			email.String, password.String, role_id.String, username.String)
+		log.Println(personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
 
-		row := "INSERT INTO person (person_id, name, surname, ssn, email, password, role_id, username) VALUES (" +
-			person_id.String + ", '" + name.String + "', '" + surname.String +"', '" + ssn.String + "', '" +
-			email.String + "', '" + password.String +"', " + role_id.String + ", '" + username.String + "');"
+		row := fmt.Sprintf("INSERT INTO person (person_id, name, surname, ssn, email, password, role_id, username) VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, '%s');", personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
 		writeToFile(row)
 
 	}
@@ -163,6 +193,8 @@ func migratePerson(db *sql.DB) error {
 	return nil
 }
 
+// Read data from the table "availability" and export it to the dumpfile
+// Input: a database handle
 func migrateAvailability(db *sql.DB) error {
 	rows, err := db.Query("SELECT availability_id, person_id, `from_date`, `to_date` from availability")
 	if err != nil {
@@ -172,23 +204,31 @@ func migrateAvailability(db *sql.DB) error {
 
 	for rows.Next() {
 		var (
-			availability_id, person_id, from_date, to_date NullString
+			availabilityId, personId sql.NullInt64
+			fromDate, toDate         sql.NullString
 		)
-		err := rows.Scan(&availability_id, &person_id, &from_date, &to_date)
+		err := rows.Scan(&availabilityId, &personId, &fromDate, &toDate)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if availability_id.Valid != true { availability_id.String = NULLDATA }
-		if person_id.Valid != true { person_id.String = NULLDATA }
-		if from_date.Valid != true { from_date.String = NULLDATA }
-		if to_date.Valid != true { to_date.String = NULLDATA }
+		if availabilityId.Valid != true {
+			availabilityId.Int64 = PLACEHOLDERINT
+		}
+		if personId.Valid != true {
+			personId.Int64 = PLACEHOLDERINT
+		}
+		if fromDate.Valid != true {
+			fromDate.String = PLACEHOLDERTEXT
+		}
+		if toDate.Valid != true {
+			toDate.String = PLACEHOLDERTEXT
+		}
 
-		fmt.Println(availability_id.String, person_id.String, from_date.String, to_date.String)
+		log.Println(availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
 
-		output := "INSERT INTO availability (availability_id, person_id, from_date, to_date) VALUES (" +
-			availability_id.String + ", " + person_id.String + ", '" + from_date.String + "', '"+ to_date.String + "');"
-		writeToFile(output)
+		row := fmt.Sprintf("INSERT INTO availability (availability_id, person_id, from_date, to_date) VALUES (%d, %d, '%s', '%s');", availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
+		writeToFile(row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -196,6 +236,8 @@ func migrateAvailability(db *sql.DB) error {
 	return nil
 }
 
+// Read data from the table "competence" and export it to the dumpfile
+// Input: a database handle
 func migrateCompetence(db *sql.DB) error {
 	rows, err := db.Query("SELECT competence_id, `name` from competence")
 	if err != nil {
@@ -205,20 +247,26 @@ func migrateCompetence(db *sql.DB) error {
 
 	for rows.Next() {
 		var (
-			competence_id, name NullString
+			competenceId sql.NullInt64
+			name         sql.NullString
 		)
-		err := rows.Scan(&competence_id, &name)
+		err := rows.Scan(&competenceId, &name)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if competence_id.Valid != true { competence_id.String = NULLDATA }
-		if name.Valid != true { name.String = NULLDATA }
+		if competenceId.Valid != true {
+			competenceId.Int64 = PLACEHOLDERINT
+		}
+		if name.Valid != true {
+			name.String = PLACEHOLDERTEXT
+		}
 
-		fmt.Println(competence_id.String, name.String)
+		log.Println(competenceId.Int64, name.String)
 
-		output := "INSERT INTO competence (competence_id, name) VALUES (" + competence_id.String + ", '" + name.String + "');"
-		writeToFile(output)
+		row := fmt.Sprintf("INSERT INTO competence (competence_id, name) VALUES (%d, '%s');", competenceId.Int64, name.String)
+
+		writeToFile(row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -226,6 +274,8 @@ func migrateCompetence(db *sql.DB) error {
 	return nil
 }
 
+// Read data from the table "competence_profile" and export it to the dumpfile
+// Input: a database handle
 func migrateCompetenceProfile(db *sql.DB) error {
 	rows, err := db.Query("SELECT competence_profile_id, person_id, competence_id, years_of_experience from competence_profile")
 	if err != nil {
@@ -235,23 +285,32 @@ func migrateCompetenceProfile(db *sql.DB) error {
 
 	for rows.Next() {
 		var (
-			competence_profile_id, person_id, competence_id, years_of_experience NullString
+			competenceProfileId, personId, competenceId sql.NullInt64
+			yearsOfExperience                           sql.NullFloat64
 		)
-		err := rows.Scan(&competence_profile_id, &person_id, &competence_id, &years_of_experience)
+		err := rows.Scan(&competenceProfileId, &personId, &competenceId, &yearsOfExperience)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if competence_profile_id.Valid != true { competence_profile_id.String = NULLDATA }
-		if person_id.Valid != true { person_id.String = NULLDATA }
-		if competence_id.Valid != true { competence_id.String = NULLDATA }
-		if years_of_experience.Valid != true { years_of_experience.String = NULLDATA }
+		if competenceProfileId.Valid != true {
+			competenceProfileId.Int64 = PLACEHOLDERINT
+		}
+		if personId.Valid != true {
+			personId.Int64 = PLACEHOLDERINT
+		}
+		if competenceId.Valid != true {
+			competenceId.Int64 = PLACEHOLDERINT
+		}
+		if yearsOfExperience.Valid != true {
+			yearsOfExperience.Float64 = PLACEHOLDERINT
+		}
 
-		fmt.Println(competence_profile_id.String, person_id.String, competence_id.String, years_of_experience.String)
+		log.Println(competenceProfileId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
 
-		output := "INSERT INTO competence_profile (competence_profile_id, person_id, competence_id, years_of_experience) VALUES (" +
-			competence_profile_id.String + ", " + person_id.String + ", " + competence_id.String + ", " + years_of_experience.String + ");"
-		writeToFile(output)
+		row := fmt.Sprintf("INSERT INTO competence_profile (competence_profile_id, person_id, competence_id, years_of_experience) VALUES (%d, %d, %d, %.1f);", competenceId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
+
+		writeToFile(row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -259,6 +318,9 @@ func migrateCompetenceProfile(db *sql.DB) error {
 	return nil
 }
 
+// Read data from the table "person", and for each person in the table check if they have entries in
+// the table "availability" in order to determine if they have an active application, if yes export it to the dumpfile
+// Input: a database handle
 func checkApplications(db *sql.DB) error {
 	applicant, err := db.Query("SELECT person_id from person")
 	if err != nil {
@@ -268,16 +330,13 @@ func checkApplications(db *sql.DB) error {
 
 	for applicant.Next() {
 		var (
-			person_id NullString
+			applicantId sql.NullInt64
 		)
-		err := applicant.Scan(&person_id)
+		err := applicant.Scan(&applicantId)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		applicantID := person_id
-
-		// TODO do through a join or the like instead of nested db calls per row
 		availability, err := db.Query("SELECT person_id from availability")
 		if err != nil {
 			log.Fatal(err)
@@ -286,17 +345,21 @@ func checkApplications(db *sql.DB) error {
 
 		for availability.Next() {
 			var (
-				availPerson_id NullString
+				availpersonId sql.NullInt64
 			)
-			err := availability.Scan(&availPerson_id)
+			err := availability.Scan(&availpersonId)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			if strings.Compare(applicantID.String, availPerson_id.String) == 0 {
-				output := "INSERT INTO application (version, person_id, status) VALUES (1, " + availPerson_id.String + ", 'unhandled');"
+			log.Println(applicantId.Int64, availpersonId.Int64)
+
+			if applicantId.Int64 == availpersonId.Int64 {
+				output := fmt.Sprintf("INSERT INTO application (version, person_id, status) VALUES (1, %d, 'unhandled');", availpersonId.Int64)
+
 				writeToFile(output)
 			}
+			break
 		}
 		if err := availability.Err(); err != nil {
 			log.Fatal(err)
