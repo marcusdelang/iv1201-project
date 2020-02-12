@@ -12,14 +12,12 @@ class User {
 
     this.serialize = () => {
       return JSON.stringify({
-        user: {
           name: this.name,
           surname: this.surname,
           ssn: this.ssn,
           email: this.email,
           username: this.username,
           role: this.role_id
-        }
       })
     }
 

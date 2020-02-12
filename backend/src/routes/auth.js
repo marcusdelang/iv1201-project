@@ -6,6 +6,7 @@ const { find: findUser } = require('../model/User')
 const saltRounds = 10;
 
 router.post('/', async (req, res) => {
+    console.log(req.headers);
     const { username, password } = req.body
     const foundUser = await findUser(username)
     if (!foundUser.verifyPassword(password)) {
@@ -13,8 +14,10 @@ router.post('/', async (req, res) => {
     }
 
     bcrypt.hash(`${username}:${password}`, saltRounds, function (err, hash) {
-        res.cookie('token', hash)
-        res.send(foundUser.serialize())
+        res.send({
+            auth: hash,
+            user: foundUser.serialize()
+        })
     });
 })
 
