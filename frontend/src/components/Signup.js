@@ -26,16 +26,7 @@ class Signup extends React.Component {
         const {id, value} = e.target;
         this.setState({
             [id]: value
-        })/*
-        if (id === 'ssn') {
-                const errors =
-                    value.length < 10
-                        ? 'Has to be a 10 digit number!'
-                        : ''
-        this.setState({ errors, [id]: value }, () => {
-            console.log(errors)
         })
-        }  */
     }
 
 submitForm = async (e) => {
@@ -47,7 +38,8 @@ submitForm = async (e) => {
         console.log(this.state)        
         this.setState({ validated: true });
     } else {
-        const response = await axios.post('/api/user', {
+        //const response = await axios.post('http://localhost:80/api/user', {
+        const response = await axios.post('api/user', {
             user: {
                 name: this.state.name,
                 surname: this.state.surname,
