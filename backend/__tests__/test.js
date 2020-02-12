@@ -4,14 +4,13 @@ const config = require('../src/config')
 const { port } = config
 
 const user = {
-    name: 'testname',
-    surname: 'testsurname',
-    ssn: 'testssn',
-    email: 'test@mail.com',
-    username: 'testusername',
-    password: 'testpassword'
-  }
-
+  name: 'testname',
+  surname: 'testsurname',
+  ssn: 'testssn',
+  email: 'test@mail.com',
+  username: 'testusername',
+  password: 'testpassword'
+}
 
 describe('Endpoint: /api', () => {
   const fs = require('fs')
