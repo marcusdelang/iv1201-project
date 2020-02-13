@@ -27,23 +27,20 @@ class Login extends React.Component{
 
     onSubmit = async () => {
         if(this.state.username !== '' && this.state.password !== ''){
-            const response = await axios.post('http://130.229.159.204:3000/api/login', {
+            const response = await axios.post('http://localhost:80/api/login', {
                         username: this.state.username,
                         password: this.state.password
-                    }, cookies.get('auth')&&{headers:{
-                        'auth': cookies.get('auth')
-                    }    
                     });
             this.setState({status: response.status});
             if(response.status === 401){
              //   console.log(response.statusText)
             }
             else if(response.status === 200){
+                const {role, name, username, surname, email, ssn } = response.data.user
                 this.props.changeAppState('auth', response.data.auth);
-                this.props.changeAppState('user', response.data.user);
+                this.props.changeAppState('user', {role, name, username, surname, email, ssn });
                 cookies.set('auth', response.data.auth, {path: '/'});
                 cookies.set('user', response.data.user, {path: '/'});
-                //this.props.updateAppState();
             }
         } else{
             console.log("invalid input");

@@ -21,7 +21,7 @@ class App extends React.Component {
   updateAppState = () =>{
     this.forceUpdate();
   }
-  changeAppState = (name, value) => {
+  changeAppState(name, value){
     this.setState({[name]: value});
   }
 
@@ -33,12 +33,14 @@ class App extends React.Component {
   }
 
   render() {
+    console.log(this.state)
+    this.state.user ? console.log(this.state.user) : console.log("")
     return (
       <div>
         <Header appState={this.state} updateAppState={this.updateAppState.bind(this)}/>
         <BrowserRouter>
          <Route exact path="/" render={(props) => <Home  />} />
-         <Route exact path="/home" render={(props) => <Home appState={this.state} />} />
+         <Route exact path="/home" render={(props) => <Home appState={this.state} user={this.state.user} role={this.state.user && this.state.user.role}/>} />
          <Route exact path="/signup" render={(props) => <Signup />} /> 
          <Route exact path="/login" render={(props) => <Login cookies={this.props.cookies} appState={this.state} handleChange={this.handleChange} updateAppState={this.updateAppState.bind(this)} changeAppState={this.changeAppState.bind(this)}/>} /> 
         </BrowserRouter>
