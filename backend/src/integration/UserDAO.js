@@ -1,4 +1,3 @@
-
 const db = require('./dbh')
 
 const PREPARED_STATEMENT_GET_APPLICANT_ROLE_ID = 'SELECT role_id FROM Role WHERE name = \'applicant\';'

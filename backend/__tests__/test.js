@@ -16,7 +16,7 @@ beforeAll(async (done) => {
   const res = await axios.post(`http://localhost:${port}/api/user`, { user })
   expect(res.statusCode === 201)
   done()
-});
+})
 
 describe('Endpoint: /api', () => {
   const fs = require('fs')
@@ -54,7 +54,7 @@ describe('Endpoint: /api/login', () => {
       password: 'testpassword'
     })
 
-    const auth = res.data.auth;
+    const auth = res.data.auth
     expect(auth !== null)
     expect(auth.length > 0)
     done()

@@ -1,25 +1,16 @@
 const express = require('express')
 const router = express.Router()
-const bcrypt = require('bcrypt')
-const { find: findUser } = require('../model/User')
-
-const saltRounds = 10
+const authController = require('../controller/auth')
 
 router.post('/', async (req, res) => {
-  console.log(req.headers)
+  let token;
   const { username, password } = req.body
-  const foundUser = await findUser(username)
-  if (!foundUser.verifyPassword(password)) {
-    return res.status(401).send()
+  try {
+    token = await authController.auth({ username, password });
+  } catch (error) {
+    res.status(error.code).send(error.message)
   }
-
-  bcrypt.hash(`${username}:${password}`, saltRounds, function (err, hash) {
-    if (err) throw err
-    res.send({
-      auth: hash,
-      user: foundUser.serialize()
-    })
-  })
+  res.send(token);
 })
 
 module.exports = router
