@@ -12,6 +12,12 @@ const user = {
   password: 'testpassword'
 }
 
+beforeAll(async (done) => {
+  const res = await axios.post(`http://localhost:${port}/api/user`, { user })
+  expect(res.statusCode === 201)
+  done()
+});
+
 describe('Endpoint: /api', () => {
   const fs = require('fs')
   test('GET => It should return the API index page', async (done) => {
@@ -26,8 +32,31 @@ describe('Endpoint: /api', () => {
 
 describe('Endpoint: /api/user', () => {
   test('POST => It should create a new user in database', async (done) => {
-    const res = await axios.post(`http://localhost:${port}/api/user`, { user })
+    const res = await axios.post(`http://localhost:${port}/api/user`, {
+      user: {
+        name: 'name1',
+        surname: 'surname1',
+        ssn: 'ssn1',
+        email: 'email@1.com',
+        username: 'username1',
+        password: 'password1'
+      }
+    })
     expect(res.statusCode === 201)
+    done()
+  })
+})
+
+describe('Endpoint: /api/login', () => {
+  test('POST => It should return an auth token in response data', async (done) => {
+    const res = await axios.post(`http://localhost:${port}/api/login`, {
+      username: 'testusername',
+      password: 'testpassword'
+    })
+
+    const auth = res.data.auth;
+    expect(auth !== null)
+    expect(auth.length > 0)
     done()
   })
 })
