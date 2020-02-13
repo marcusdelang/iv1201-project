@@ -1,11 +1,14 @@
 const express = require('express')
 const router = express.Router()
-const { User } = require('../model/User')
+const userController = require('../controller/user')
 
 router.post('/', async (req, res) => {
   const { name, surname, ssn, username, password, email } = req.body.user
-  const newUser = new User({ name, surname, ssn, username, password, email })
-  await newUser.store()
+  try {
+    await userController.newUser({ name, surname, ssn, username, password, email })
+  } catch (error) {
+    res.status(error.code).send(error.message)
+  }
   res.status(201).send()
 })
 

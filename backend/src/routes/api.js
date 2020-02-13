@@ -1,12 +1,11 @@
 const express = require('express')
 const path = require('path')
 const router = express.Router()
-const userRoute = require('./user')
-const authRoute = require('./auth')
+const routes = require('./routes')
 const apiIndexpath = path.join(__dirname, '..', 'views', 'index.html')
 
-router.use('/login', authRoute)
-router.use('/user', userRoute)
+router.use('/login', routes.auth)
+router.use('/user', routes.user)
 router.get('/', (req, res) => {
   res.sendFile(apiIndexpath)
 })
