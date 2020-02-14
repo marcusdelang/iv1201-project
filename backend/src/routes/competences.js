@@ -7,9 +7,8 @@ router.get('/', async (req, res) => {
   const token = req.headers.auth
   if (!authUtil.isAuthenticated(token)) {
     const error = {code: 401, message: 'Please sign in'}
-    res.status(error.code).send(error.message)
+    return res.status(error.code).send(error.message)
   }
-  const user = authUtil.getUser(token)
   const { name, surname, ssn, username, password, email } = req.body.user
   try {
     await userController.newUser({ name, surname, ssn, username, password, email })
