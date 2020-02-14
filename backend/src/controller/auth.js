@@ -1,7 +1,5 @@
-const bcrypt = require('bcryptjs')
+const authUtil = require('./authUtil')
 const { find: findUser } = require('../model/User')
-
-const saltRounds = 10
 
 async function auth (credentials) {
   const { username, password } = credentials
@@ -14,15 +12,9 @@ async function auth (credentials) {
   if (!foundUser.verifyPassword(password)) {
     throw { code: 401, message: 'Invalid password' }
   }
-  return new Promise((resolve, reject) => {
-    bcrypt.hash(`${username}:${password}`, saltRounds, function (error, hash) {
-      if (error) {
-        reject(error)
-      }
-      console.log(hash)
-      resolve({ auth: hash, user: foundUser.serialize() })
-    })
-  })
+  const hash = await authUtil.encrypt()
+  authUtil.storeHash({ hash, foundUser })
+  return { auth: hash, user: foundUser.serialize() }
 }
 
 module.exports = { auth }
