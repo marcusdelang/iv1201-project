@@ -1,7 +1,10 @@
 const DAO = require('../integration/UserDAO')
 
 class User {
-  constructor(details) {
+  constructor (details) {
+    if (details.person_id) {
+      this.person_id = details.person_id
+    }
     this.name = details.name || null
     this.surname = details.surname || null
     this.ssn = details.ssn || null
@@ -12,14 +15,12 @@ class User {
 
     this.serialize = () => {
       return JSON.stringify({
-        user: {
-          name: this.name,
-          surname: this.surname,
-          ssn: this.ssn,
-          email: this.email,
-          username: this.username,
-          role: this.role_id
-        }
+        name: this.name,
+        surname: this.surname,
+        ssn: this.ssn,
+        email: this.email,
+        username: this.username,
+        role: this.role_id
       })
     }
 
@@ -32,7 +33,7 @@ class User {
   }
 }
 
-async function find(username) {
+async function find (username) {
   const details = await DAO.find(username)
   const user = new User(details)
   return user
