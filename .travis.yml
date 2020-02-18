@@ -7,4 +7,4 @@ services:
 before_script:
   - docker-compose up --build &
 script:
-  while :; do if [ $(docker ps | grep -i iv1201 | wc -l) = 2 ]; then docker exec app npm test --prefix backend; exit $?; fi; done;
+  while :; do if [ $(docker ps | grep -i iv1201 | wc -l) = 2 ]; then docker exec app npm run test-docker --prefix backend; exit $?; fi; done;
