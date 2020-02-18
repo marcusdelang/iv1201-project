@@ -11,7 +11,8 @@
     "dev": "env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp nodemon ./src/bin/www",
     "docker": "nodemon ./src/bin/www",
     "lint": "eslint . --fix",
-    "test": "env NODE_ENV=development env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp ./node_modules/.bin/jest"
+    "test": "env NODE_ENV=development env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp ./node_modules/.bin/jest",
+    "test-docker": "env NODE_ENV=development env DATABASE_URL=postgres://postgres:postgres@dev_db:5432/recapp ./node_modules/.bin/jest"
   },
   "dependencies": {
     "app-root-path": "^3.0.0",

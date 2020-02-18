@@ -6,6 +6,7 @@ const apiIndexpath = path.join(__dirname, '..', 'views', 'index.html')
 
 router.use('/login', routes.auth)
 router.use('/user', routes.user)
+router.use('/competence', routes.competence)
 router.get('/', (req, res) => {
   res.sendFile(apiIndexpath)
 })
