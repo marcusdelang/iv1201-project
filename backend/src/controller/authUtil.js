@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs')
 const NodeCache = require('node-cache')
-const { find: findUser } = require('../model/User')
 
 const myCache = new NodeCache({ stdTTL: 60 * 30, checkperiod: 60 * 10 })
 const saltRounds = 10
@@ -27,6 +26,7 @@ function getUser (hash) {
 }
 
 function isAuthenticated (hash) {
+  if (!hash) return false
   const user = myCache.get(hash)
   if (!user) {
     return false
