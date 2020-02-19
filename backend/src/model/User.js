@@ -1,7 +1,7 @@
 const DAO = require('../integration/UserDAO')
 
 class User {
-  constructor(details) {
+  constructor (details) {
     if (details.person_id) {
       this.person_id = details.person_id
     }
