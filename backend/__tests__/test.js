@@ -94,3 +94,17 @@ describe('Endpoint: /api/competence', () => {
     done()
   })
 })
+
+describe('Endpoint: /api/application', () => {
+  test('POST => It should return an auth token in response data', async (done) => {
+    const res = await axios.post(`http://localhost:${port}/api/login`, {
+      username: 'testusername',
+      password: 'testpassword'
+    })
+
+    const auth = res.data.auth
+    expect(auth !== null)
+    expect(auth.length > 0)
+    done()
+  })
+})

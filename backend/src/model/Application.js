@@ -16,11 +16,16 @@ class Application {
     }
 }
 
-async function find(user) {
-    return await DAO.find(user.person_id)
+async function exist(personId){
+    return DAO.exist(personId)
+}
+
+async function find(person) {
+    return await DAO.find(personId)
 }
 
 module.exports = {
     Application,
+    exist,
     find
 }

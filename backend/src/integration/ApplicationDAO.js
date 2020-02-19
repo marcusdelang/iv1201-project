@@ -23,12 +23,25 @@ async function store(application) {
     }
 }
 
+async function exist(personId){
+    try{
+        const res = await db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId])
+        return res.rows.length > 0 ? true : false
+    } catch (error){
+        throw {code: 500, message: `Database error: ${error.message}`}
+    }
+}
+
 async function find(personId) {
-    const values = await Promise.all([
-        db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
-        db.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
-        db.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId])
-    ])
+    try{
+        const values = await Promise.all([
+            db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
+            db.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
+            db.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId])
+        ])
+    }catch(error){
+        throw {code: 500, message: `Database error: ${error.message}`}
+    }
     const application = values[0] 
     const competences = values[1] 
     const availabilites = values[2]
