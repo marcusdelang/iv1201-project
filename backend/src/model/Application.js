@@ -5,7 +5,7 @@ class Application {
     constructor(form, user) {
         form.version ? this.version = form.version : this.version = 1
         form.status ? this.status = form.status : this.status = 'unhandled'
-        const { user, availabilities, competences} = form
+        const {availabilities, competences} = form
         this.person = user.person_id
         this.availabilities = availabilities
         this.competences = competences
