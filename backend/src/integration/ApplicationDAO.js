@@ -7,50 +7,50 @@ const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE per
 const PREPARED_STATEMENT_FIND_COMPETENCES = 'SELECT * FROM Competence_profile WHERE person = $1;'
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person = $1;'
 
-async function store(application) {
-    const { person, availabilities, competences, status, version } = application
-    try {
-        await db.query(PREPARED_STATEMENT_STORE_APPLICATION, [version, person, status])
-        for (let availability of availabilities) {
-            await db.query(PREPARED_STATEMENT_STORE_AVAILABILITY, [person, availability.fromDate, availabilty.toDate])
-        }
-        for (let competence of competences) {
-            await db.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE, [person, competence.id, competence.years_of_experience])
-        }
-
-    } catch (error) {
-        throw { code: 500, message: `Database error: ${error.message}` }
+async function store (application) {
+  const { person, availabilities, competences, status, version } = application
+  try {
+    await db.query(PREPARED_STATEMENT_STORE_APPLICATION, [version, person, status])
+    for (const availability of availabilities) {
+      await db.query(PREPARED_STATEMENT_STORE_AVAILABILITY, [person, availability.fromDate, availabilty.toDate])
     }
+    for (const competence of competences) {
+      await db.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE, [person, competence.id, competence.years_of_experience])
+    }
+  } catch (error) {
+    throw { code: 500, message: `Database error: ${error.message}` }
+  }
 }
 
-async function exist(personId){
-    try{
-        const res = await db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId])
-        return res.rows.length > 0 ? true : false
-    } catch (error){
-        throw {code: 500, message: `Database error: ${error.message}`}
-    }
+async function exist (personId) {
+  try {
+    const res = await db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId])
+    return res.rows.length > 0
+  } catch (error) {
+    throw { code: 500, message: `Database error: ${error.message}` }
+  }
 }
 
-async function find(personId) {
-    try{
-        const values = await Promise.all([
-            db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
-            db.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
-            db.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId])
-        ])
-    }catch(error){
-        throw {code: 500, message: `Database error: ${error.message}`}
-    }
-    const application = values[0] 
-    const competences = values[1] 
-    const availabilites = values[2]
-    const applicationDetails = {
-        person: personId,
-        version: application.version,
-        status: application.status,
-        availabilites: availabilites,
-        competences: competences
-    }
-    return new Application(applicationDetails)
+async function find (personId) {
+  let values
+  try {
+    values = await Promise.all([
+      db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
+      db.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
+      db.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId])
+    ])
+  } catch (error) {
+    throw { code: 500, message: `Database error: ${error.message}` }
+  }
+  const application = values[0]
+  const competences = values[1]
+  const availabilites = values[2]
+  const applicationDetails = {
+    person: personId,
+    version: application.version,
+    status: application.status,
+    availabilites: availabilites,
+    competences: competences
+  }
+  return new Application(applicationDetails)
 }
