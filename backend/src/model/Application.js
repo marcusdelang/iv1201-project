@@ -1,11 +1,10 @@
 const DAO = require('../integration/ApplicationDAO')
 
-
 class Application {
     constructor(form, user) {
         form.version ? this.version = form.version : this.version = 1
         form.status ? this.status = form.status : this.status = 'unhandled'
-        const {availabilities, competences} = form
+        const { availabilities, competences } = form
         this.person = user.person_id
         this.availabilities = availabilities
         this.competences = competences
@@ -16,16 +15,17 @@ class Application {
     }
 }
 
-async function exist(personId){
-    return DAO.exist(personId)
+async function exists(personId) {
+    return DAO.exists(personId)
+
 }
 
-async function find(person) {
+async function find(personId) {
     return await DAO.find(personId)
 }
 
 module.exports = {
     Application,
-    exist,
+    exists,
     find
 }

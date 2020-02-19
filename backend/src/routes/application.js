@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     return res.status(error.code).send(error.message)
   }
-  res.send(token).status(201)
+  res.status(201).send('Application created')
 })
 
 module.exports = router
