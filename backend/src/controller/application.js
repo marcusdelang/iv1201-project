@@ -1,8 +1,8 @@
-const { Application, find: findApplication, exists: checkApplicationExists } = require('../model/Application')
+const { Application, find: findApplication, exists: applicationExists } = require('../model/Application')
 const authUtil = require('../controller/authUtil')
 
 function createApplication (form, user) {
-  if (checkApplicationExists(user.person_id)) {
+  if (applicationExists(user.person_id)) {
     throw { code: 409, message: 'Application already exists' }
   }
   try {

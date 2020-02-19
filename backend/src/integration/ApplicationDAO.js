@@ -1,3 +1,4 @@
+const db = require('./dbh')
 
 const PREPARED_STATEMENT_STORE_APPLICATION = 'INSERT INTO Application (version, person, status) VALUES ($1, $2, $3);'
 const PREPARED_STATEMENT_STORE_AVAILABILITY = 'INSERT INTO Availability (person, from_date, to_date) VALUES ($1, $2, $3);'
@@ -22,7 +23,7 @@ async function store (application) {
   }
 }
 
-async function exist (personId) {
+async function exists (personId) {
   try {
     const res = await db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId])
     return res.rows.length > 0
@@ -53,4 +54,10 @@ async function find (personId) {
     competences: competences
   }
   return new Application(applicationDetails)
+}
+
+module.exports = {
+  store,
+  exists,
+  find
 }
