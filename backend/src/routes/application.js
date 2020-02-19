@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const applicationController = require('../controller/application')
-const authUtil = require('../controller/authUtil')
+//const applicationController = require('../controller/application')
+//const authUtil = require('../controller/authUtil')
 
 router.post('/', async (req, res) => {
   const token = req.headers.auth
@@ -17,6 +17,5 @@ router.post('/', async (req, res) => {
   res.send(token).status(201)
 })
 
-router.get()
 
 module.exports = router
