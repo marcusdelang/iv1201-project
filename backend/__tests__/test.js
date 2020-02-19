@@ -26,8 +26,6 @@ beforeAll(async (done) => {
 })
 
 afterAll(async (done) => {
-  //const res = await axios.post(`http://localhost:${port}/api/user`, { user })
-  //expect(res.statusCode === 201)
   await db.query('DELETE FROM Person WHERE username = \'testusername\'');
   db.end()
   done()
