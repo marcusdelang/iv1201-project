@@ -23,8 +23,13 @@ async function find (personId) {
   return DAO.find(personId)
 }
 
+async function getAll() {
+  return DAO.getAll();
+}
+
 module.exports = {
   Application,
   exists,
-  find
+  find,
+  getAll
 }

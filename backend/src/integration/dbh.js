@@ -1,7 +1,7 @@
-const { Client } = require('pg')
+const { Pool } = require('pg')
 const { dbConnectionString } = require('./dbconfig')
 
-const db = new Client({
+const db = new Pool({
   connectionString: dbConnectionString
 })
 db.connect()
