@@ -25,7 +25,7 @@ function getUser (hash) {
   return user
 }
 
-function isRecruiter(hash){
+function isRecruiter (hash) {
   return getUser(hash).role_id === 1
 }
 

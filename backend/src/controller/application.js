@@ -1,6 +1,6 @@
 const { Application, exists: applicationExists, find: findApplication, getAll: getAllApplications } = require('../model/Application')
 
-async function createApplication(form, user) {
+async function createApplication (form, user) {
   if (await applicationExists(user.person_id)) {
     throw { code: 409, message: 'Application already exists' }
   }
@@ -11,7 +11,7 @@ async function createApplication(form, user) {
   }
 }
 
-async function getApplicationsWithToken(user) {
+async function getApplicationsWithToken (user) {
   if (user.role_id === 2) {
     const application = await getApplicantApplication(user.person_id)
     return application
@@ -23,16 +23,16 @@ async function getApplicationsWithToken(user) {
   }
 }
 
-async function getApplicationWithId(personId){
+async function getApplicationWithId (personId) {
   const application = await getApplicantApplication(personId)
   return application
 }
 
-async function getRecruiterApplications() {
+async function getRecruiterApplications () {
   return getAllApplications()
 }
 
-async function getApplicantApplication(personId) {
+async function getApplicantApplication (personId) {
   if (!await applicationExists(personId)) {
     return []
   }

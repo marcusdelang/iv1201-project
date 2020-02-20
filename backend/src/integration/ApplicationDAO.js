@@ -3,13 +3,13 @@ const db = require('./dbh')
 const PREPARED_STATEMENT_STORE_APPLICATION = 'INSERT INTO Application (version, person, status) VALUES ($1, $2, $3);'
 const PREPARED_STATEMENT_STORE_AVAILABILITY = 'INSERT INTO Availability (person_id, from_date, to_date) VALUES ($1, $2, $3);'
 const PREPARED_STATEMENT_GET_COMPETENCE_ID = 'SELECT competence_id FROM Competence WHERE name = $1;'
-const PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE ='INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES ($1, $2, $3);'
+const PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE = 'INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES ($1, $2, $3);'
 const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE person = $1;'
 const PREPARED_STATEMENT_FIND_COMPETENCES = 'SELECT * FROM Competence_profile WHERE person_id = $1;'
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person_id = $1;'
 const PREPARED_STATEMENT_GET_ALL_APPLICATIONS = 'SELECT * FROM Application;'
 
-async function store(application) {
+async function store (application) {
   const { person, availabilities, competences, status, version } = application
   try {
     await db.query(PREPARED_STATEMENT_STORE_APPLICATION, [version, person, status])
@@ -28,7 +28,7 @@ async function store(application) {
   }
 }
 
-async function exists(personId) {
+async function exists (personId) {
   try {
     const res = await db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId])
     return res.rows.length > 0
@@ -37,7 +37,7 @@ async function exists(personId) {
   }
 }
 
-async function find(personId) {
+async function find (personId) {
   try {
     const values = await Promise.all([
       db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
@@ -60,7 +60,7 @@ async function find(personId) {
   }
 }
 
-async function getAll() {
+async function getAll () {
   try {
     const applications = (await db.query(PREPARED_STATEMENT_GET_ALL_APPLICATIONS)).rows
     return applications
