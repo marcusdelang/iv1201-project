@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
    return res.status(error.code).send(error.message)
   }
   try {
-    applicationController.createApplication(req.body.form, authUtil.getUser(token))
+    await applicationController.createApplication(req.body.form, authUtil.getUser(token))
   } catch (error) {
     return res.status(error.code).send(error.message)
   }
