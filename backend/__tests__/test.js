@@ -37,22 +37,22 @@ describe('Endpoint: /api', () => {
       await buildTestDB()
       testUserId = (await db.query('SELECT * FROM Person WHERE username = \'testusername\'')).rows[0].person_id
       testCompId = (await db.query('SELECT * FROM Competence WHERE name = \'testcomp\'')).rows[0].competence_id
+      console.log('DONE Setup')
+      done()
     } catch (error) {
       return done(error)
     }
-    console.log('DONE Setup')
-    done()
   })
 
   afterAll(async (done) => {
     try {
       await clearDB()
       db.end()
+      console.log('DONE Cleanup')
+      done()
     } catch (error) {
       return done(error)
     }
-    console.log('DONE Cleanup')
-    done()
   })
 
   describe('Endpoint: /api', () => {
@@ -61,7 +61,7 @@ describe('Endpoint: /api', () => {
       const res = await axios.get(`http://localhost:${port}/api`)
       fs.readFile(path.join(__dirname, '..', 'src', 'views', 'index.html'), (err, fileData) => {
         if (err) return done(err)
-        expect(res.statusCode === 200)
+        expect(res.status).toEqual(200)
         expect(res.data).toEqual(fileData.toString())
         done()
       })
@@ -95,9 +95,9 @@ describe('Endpoint: /api', () => {
       })
 
       const auth = res.data.auth
-      expect(res.statusCode === 200)
-      expect(auth !== null)
-      expect(auth.length > 0)
+      expect(res.status).toEqual(200)
+      expect(auth).not.toBe(null)
+      expect(auth.length).toBeGreaterThan(0)
       done()
     })
   })
@@ -114,8 +114,8 @@ describe('Endpoint: /api', () => {
           auth: auth
         }
       })
-      expect(res.statusCode === 200)
-      expect(Array.isArray(res.data))
+      expect(res.status).toEqual(200)
+      expect(Array.isArray(res.data)).toEqual(true)
       done()
     })
   })
@@ -146,7 +146,7 @@ describe('Endpoint: /api', () => {
       } catch (error) {
         return done(error)
       }
-      expect(res.statusCode !== 201)
+      expect(res.status).toEqual(201)
       await db.query(`DELETE FROM Availability WHERE person_id = ${testUserId}`)
       await db.query(`DELETE FROM Application WHERE person = ${testUserId}`)
       await db.query(`DELETE FROM Competence_profile WHERE person_id = ${testUserId}`)
@@ -168,7 +168,7 @@ describe('Endpoint: /api', () => {
         res = await axios.get(`http://localhost:${port}/api/application`, { headers })
         expect(res.status).toEqual(200)
         expect(res.headers['content-type']).toEqual('application/json')
-        expect(typeof (res.data)).toEqual('array')
+        expect(Array.isArray(res.data)).toEqual(true)
         return done()
       } catch (error) {
         return done(error)
