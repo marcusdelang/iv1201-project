@@ -8,28 +8,50 @@ const { dbConnectionString } = require('../src/integration/dbconfig')
 const db = new Client({
   connectionString: dbConnectionString
 })
+let testUserId
+let testCompId
+
+async function clearDB () {
+  return Promise.all([
+    db.query('DELETE FROM Competence_profile *'),
+    db.query('DELETE FROM Competence *'),
+    db.query('DELETE FROM Application *'),
+    db.query('DELETE FROM Availability *'),
+    db.query('DELETE FROM Person *')
+  ])
+}
+
+async function buildTestDB () {
+  return Promise.all([
+    db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')'),
+    db.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
+      'VALUES (\'testname\', \'testsurname\', \'testssn\', \'test@mail.com\', \'testusername\', \'testpassword\', 2);')
+  ])
+}
 
 describe('Endpoint: /api', () => {
   beforeAll(async (done) => {
     try {
       db.connect()
-      await db.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
-        'VALUES (\'testname\', \'testsurname\', \'testssn\', \'test@mail.com\', \'testusername\', \'testpassword\', 2);')
+      await clearDB()
+      await buildTestDB()
+      testUserId = (await db.query('SELECT * FROM Person WHERE username = \'testusername\'')).rows[0].person_id
+      testCompId = (await db.query('SELECT * FROM Competence WHERE name = \'testcomp\'')).rows[0].competence_id
     } catch (error) {
       return done(error)
     }
-    console.log("DONE beforeALL")
+    console.log('DONE Setup')
     done()
   })
 
   afterAll(async (done) => {
     try {
-      await db.query('DELETE FROM Person WHERE username = \'testusername\'');
+      await clearDB()
       db.end()
     } catch (error) {
       return done(error)
     }
-    console.log("DONE afterALL")
+    console.log('DONE Cleanup')
     done()
   })
 
@@ -45,10 +67,10 @@ describe('Endpoint: /api', () => {
       })
     })
   })
-  
+
   describe('Endpoint: /api/user', () => {
     test('POST => 201 It should create a new user in database', async (done) => {
-      const res = await axios.post(`http://localhost:${port}/api/user`, {
+      axios.post(`http://localhost:${port}/api/user`, {
         user: {
           name: 'name1',
           surname: 'surname1',
@@ -57,21 +79,21 @@ describe('Endpoint: /api', () => {
           username: 'username1',
           password: 'password1'
         }
-      }).then(res => {
-        expect(res.statusCode === 201)
-        db.query('DELETE FROM Person WHERE username = \'username1\'');
-        done()
-      }).catch(error => done(error));
+      }).then(async res => {
+        expect(res.status).toEqual(201)
+        await db.query('DELETE FROM Person WHERE username = \'username1\'')
+        return done()
+      }).catch(error => done(error))
     })
   })
-  
+
   describe('Endpoint: /api/login', () => {
     test('POST => 200 It should return an auth token in response data', async (done) => {
       const res = await axios.post(`http://localhost:${port}/api/login`, {
         username: 'testusername',
         password: 'testpassword'
       })
-  
+
       const auth = res.data.auth
       expect(res.statusCode === 200)
       expect(auth !== null)
@@ -79,7 +101,7 @@ describe('Endpoint: /api', () => {
       done()
     })
   })
-  
+
   describe('Endpoint: /api/competence', () => {
     test('GET => 200 It should return an an array', async (done) => {
       let res = await axios.post(`http://localhost:${port}/api/login`, {
@@ -89,7 +111,7 @@ describe('Endpoint: /api', () => {
       const auth = res.data.auth
       res = await axios.get(`http://localhost:${port}/api/competence`, {
         headers: {
-          'auth': auth
+          auth: auth
         }
       })
       expect(res.statusCode === 200)
@@ -106,34 +128,51 @@ describe('Endpoint: /api', () => {
           username: 'testusername',
           password: 'testpassword'
         })
-
       } catch (error) {
         return done(error)
       }
       const auth = res.data.auth
-      await db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')');
+      await db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')')
 
       const data = {
         form: {
-          competences: [{ name: "testcomp", years_of_experience: 10 }],
-          availabilities: [{ from: "2020-06-14", to: "2020-06-30" }]
+          competences: [{ name: 'testcomp', years_of_experience: 10 }],
+          availabilities: [{ from: '2020-06-14', to: '2020-06-30' }]
         }
       }
-      const headers = { 'auth': auth }
+      const headers = { auth: auth }
       try {
         res = await axios.post(`http://localhost:${port}/api/application`, data, { headers })
       } catch (error) {
         return done(error)
       }
       expect(res.statusCode !== 201)
-      res = await db.query('SELECT person_id FROM PERSON WHERE username = \'testusername\'');
-      const personId = res.rows[0].person_id
-      await db.query(`DELETE FROM Availability WHERE person_id = ${personId}`);
-      await db.query(`DELETE FROM Application WHERE person = ${personId}`);
-      await db.query(`DELETE FROM Competence_profile WHERE person_id = ${personId}`);
-      await db.query('DELETE FROM Competence WHERE name = \'testcomp\'');
+      await db.query(`DELETE FROM Availability WHERE person_id = ${testUserId}`)
+      await db.query(`DELETE FROM Application WHERE person = ${testUserId}`)
+      await db.query(`DELETE FROM Competence_profile WHERE person_id = ${testUserId}`)
       done()
+    })
+
+    test('GET => 200 Should return applicant application in list', async (done) => {
+      try {
+        await db.query(`INSERT INTO Availability (person_id, from_date, to_date) VALUES (${testUserId}, '2020-02-20', '2020-02-21')`)
+        await db.query(`INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES (${testUserId}, ${testCompId}, 10)`)
+        await db.query(`INSERT INTO Application (person) VALUES (${testUserId})`)
+
+        let res = await axios.post(`http://localhost:${port}/api/login`, {
+          username: 'testusername',
+          password: 'testpassword'
+        })
+
+        const headers = { auth: res.data.auth }
+        res = await axios.get(`http://localhost:${port}/api/application`, { headers })
+        expect(res.status).toEqual(200)
+        expect(res.headers['content-type']).toEqual('application/json')
+        expect(typeof (res.data)).toEqual('array')
+        return done()
+      } catch (error) {
+        return done(error)
+      }
     })
   })
 })
-
