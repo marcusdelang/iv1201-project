@@ -11,10 +11,10 @@ async function createApplication(form, user) {
   }
 }
 
-async function getApplications(user) {
+async function getApplicationsWithToken(user) {
   if (user.role_id === 2) {
-    const application = await getApplicantApplication(user)
-    return [application];
+    const application = await getApplicantApplication(user.person_id)
+    return application
   }
 
   if (user.role_id === 1) {
@@ -23,15 +23,21 @@ async function getApplications(user) {
   }
 }
 
+async function getApplicationWithId(personId){
+  const application = await getApplicantApplication(personId)
+  return application
+}
+
 async function getRecruiterApplications() {
   return getAllApplications()
 }
 
-async function getApplicantApplication(user) {
-  if (!await applicationExists(user.person_id)) {
+async function getApplicantApplication(personId) {
+  if (!await applicationExists(personId)) {
     return []
   }
-  return findApplication(user.person_id)
+  const application = await findApplication(personId)
+  return [application]
 }
 
-module.exports = { createApplication, getApplications }
+module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId }

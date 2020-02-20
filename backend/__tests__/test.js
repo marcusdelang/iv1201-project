@@ -12,7 +12,7 @@ let testAppId
 let testRecId
 let testCompId
 
-async function clearDB() {
+async function clearDB () {
   return Promise.all([
     db.query('DELETE FROM Competence_profile *'),
     db.query('DELETE FROM Competence *'),
@@ -22,7 +22,7 @@ async function clearDB() {
   ])
 }
 
-async function buildTestDB() {
+async function buildTestDB () {
   return Promise.all([
     db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')'),
     db.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
@@ -151,6 +151,12 @@ describe('Endpoint: /api', () => {
   })
 
   describe('Endpoint: /api/application', () => {
+    async function createTestApplication () {
+      await db.query(`INSERT INTO Availability (person_id, from_date, to_date) VALUES (${testAppId}, '2020-02-20', '2020-02-21')`)
+      await db.query(`INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES (${testAppId}, ${testCompId}, 10)`)
+      await db.query(`INSERT INTO Application (person) VALUES (${testAppId})`)
+    }
+
     test('POST => 201 It should successfully create an application', async (done) => {
       try {
         await db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')')
@@ -170,12 +176,28 @@ describe('Endpoint: /api', () => {
       }
     })
 
+    test('POST => 409 Create application if already exists for person', async (done) => {
+      try {
+        await createTestApplication()
+        let res = await axios.post(`http://localhost:${port}/api/login`, { username: 'testapp', password: 'testapp' })
+        const headers = { auth: res.data.auth }
+        const data = {
+          form: {
+            competences: [{ name: 'testcomp', years_of_experience: 10 }],
+            availabilities: [{ from: '2020-06-14', to: '2020-06-30' }]
+          }
+        }
+        res = await axios.post(`http://localhost:${port}/api/application`, data, { headers })
+        return done({ message: 'Should throw 409' })
+      } catch (error) {
+        expect(error.response.status).toEqual(409)
+        return done()
+      }
+    })
+
     test('GET => 200 Should return applicant application in list', async (done) => {
       try {
-        await db.query(`INSERT INTO Availability (person_id, from_date, to_date) VALUES (${testAppId}, '2020-02-20', '2020-02-21')`)
-        await db.query(`INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES (${testAppId}, ${testCompId}, 10)`)
-        await db.query(`INSERT INTO Application (person) VALUES (${testAppId})`)
-
+        await createTestApplication()
         let res = await axios.post(`http://localhost:${port}/api/login`, {
           username: 'testapp',
           password: 'testapp'
@@ -195,10 +217,7 @@ describe('Endpoint: /api', () => {
     })
     test('GET => 200 Should return recruiter applications in list', async (done) => {
       try {
-        await db.query(`INSERT INTO Availability (person_id, from_date, to_date) VALUES (${testAppId}, '2020-02-20', '2020-02-21')`)
-        await db.query(`INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES (${testAppId}, ${testCompId}, 10)`)
-        await db.query(`INSERT INTO Application (person) VALUES (${testAppId})`)
-
+        await createTestApplication()
         let res = await axios.post(`http://localhost:${port}/api/login`, {
           username: 'testrec',
           password: 'testrec'
@@ -212,6 +231,75 @@ describe('Endpoint: /api', () => {
         return done()
       } catch (error) {
         return done(error)
+      }
+    })
+
+    test('GET => 200 Recruiter search applicant by person ID', async (done) => {
+      try {
+        await createTestApplication()
+        let res = await axios.post(`http://localhost:${port}/api/login`, {
+          username: 'testrec',
+          password: 'testrec'
+        })
+
+        const headers = { auth: res.data.auth }
+        const params = { personId: testAppId }
+        res = await axios.get(`http://localhost:${port}/api/application`, { params, headers })
+        expect(Array.isArray(res.data)).toEqual(true)
+        expect(res.status).toEqual(200)
+        expect(res.headers['content-type']).toMatch(/.*application\/json.*/)
+        return done()
+      } catch (error) {
+        return done(error)
+      }
+    })
+
+    test('GET => 200 Empty list if search person ID when no application in DB', async (done) => {
+      try {
+        let res = await axios.post(`http://localhost:${port}/api/login`, {
+          username: 'testrec',
+          password: 'testrec'
+        })
+
+        const headers = { auth: res.data.auth }
+        const params = { personId: testAppId }
+        res = await axios.get(`http://localhost:${port}/api/application`, { params, headers })
+        expect(res.status).toEqual(200)
+        expect(Array.isArray(res.data)).toEqual(true)
+        expect(res.data.length).toEqual(0)
+        expect(res.headers['content-type']).toMatch(/.*application\/json.*/)
+        return done()
+      } catch (error) {
+        return done(error)
+      }
+    })
+
+    test('GET => 401 Access application without authentication', async (done) => {
+      try {
+        await createTestApplication()
+        res = await axios.get(`http://localhost:${port}/api/application`)
+        return done({ message: 'Should throw error on 401' })
+      } catch (error) {
+        expect(error.response.status).toEqual(401)
+        return done()
+      }
+    })
+
+    test('GET => 403 Applicant search applicant by person ID', async (done) => {
+      try {
+        await createTestApplication()
+        let res = await axios.post(`http://localhost:${port}/api/login`, {
+          username: 'testapp',
+          password: 'testapp'
+        })
+
+        const headers = { auth: res.data.auth }
+        const params = { personId: testAppId }
+        res = await axios.get(`http://localhost:${port}/api/application`, { params, headers })
+        return done({ message: 'Should throw error on 403' })
+      } catch (error) {
+        expect(error.response.status).toEqual(403)
+        return done()
       }
     })
   })
