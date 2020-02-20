@@ -1,5 +1,4 @@
-const { Application, find: findApplication, exists: applicationExists } = require('../model/Application')
-const authUtil = require('../controller/authUtil')
+const { Application, exists: applicationExists } = require('../model/Application')
 
 async function createApplication (form, user) {
   if (await applicationExists(user.person_id)) {

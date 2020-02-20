@@ -11,7 +11,7 @@ const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE per
 const PREPARED_STATEMENT_FIND_COMPETENCES = 'SELECT * FROM Competence_profile WHERE person = $1;'
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person = $1;'
 
-async function store(application) {
+async function store (application) {
   const { person, availabilities, competences, status, version } = application
   try {
     await db.query(PREPARED_STATEMENT_STORE_APPLICATION, [version, person, status])
@@ -19,9 +19,9 @@ async function store(application) {
       await db.query(PREPARED_STATEMENT_STORE_AVAILABILITY, [person, availability.from, availability.to])
     }
     for (const competence of competences) {
-      const res = await db.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name]);
+      const res = await db.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name])
       if (res.rows.length === 0) {
-        throw {code: 500, message: 'No such competence'}
+        throw { code: 500, message: 'No such competence' }
       }
       await db.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE, [person, res.rows[0].competence_id, competence.years_of_experience])
     }
@@ -30,7 +30,7 @@ async function store(application) {
   }
 }
 
-async function exists(personId) {
+async function exists (personId) {
   try {
     const res = await db.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId])
     return res.rows.length > 0
@@ -39,7 +39,7 @@ async function exists(personId) {
   }
 }
 
-async function find(personId) {
+async function find (personId) {
   let values
   try {
     values = await Promise.all([
@@ -60,7 +60,7 @@ async function find(personId) {
     availabilites: availabilites,
     competences: competences
   }
-  return new Application(applicationDetails)
+  return applicationDetails
 }
 
 module.exports = {

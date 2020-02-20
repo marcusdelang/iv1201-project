@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
   const token = req.headers.auth
   if (!authUtil.isAuthenticated(token)) {
     const error = { code: 401, message: 'Please sign in' }
-   return res.status(error.code).send(error.message)
+    return res.status(error.code).send(error.message)
   }
   try {
     await applicationController.createApplication(req.body.form, authUtil.getUser(token))
