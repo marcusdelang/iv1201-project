@@ -25,6 +25,10 @@ function getUser (hash) {
   return user
 }
 
+function isRecruiter (hash) {
+  return getUser(hash).role_id === 1
+}
+
 function isAuthenticated (hash) {
   if (!hash) return false
   const user = myCache.get(hash)
@@ -37,6 +41,7 @@ function isAuthenticated (hash) {
 module.exports = {
   encrypt,
   storeHash,
+  isRecruiter,
   getUser,
   isAuthenticated
 }
