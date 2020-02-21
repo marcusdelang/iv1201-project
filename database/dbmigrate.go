@@ -227,7 +227,7 @@ func migrateAvailability(db *sql.DB) error {
 
 		log.Println(availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
 
-		row := fmt.Sprintf("INSERT INTO availability (availability_id, person_id, from_date, to_date) VALUES (%d, %d, '%s', '%s');", availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
+		row := fmt.Sprintf("INSERT INTO availability (availability_id, person, from_date, to_date) VALUES (%d, %d, '%s', '%s');", availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
 		writeToFile(row)
 	}
 	if err := rows.Err(); err != nil {
@@ -308,7 +308,7 @@ func migrateCompetenceProfile(db *sql.DB) error {
 
 		log.Println(competenceProfileId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
 
-		row := fmt.Sprintf("INSERT INTO competence_profile (competence_profile_id, person_id, competence_id, years_of_experience) VALUES (%d, %d, %d, %.1f);", competenceId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
+		row := fmt.Sprintf("INSERT INTO competence_profile (competence_profile_id, person, competence_id, years_of_experience) VALUES (%d, %d, %d, %.1f);", competenceId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
 
 		writeToFile(row)
 	}
@@ -355,7 +355,7 @@ func checkApplications(db *sql.DB) error {
 			log.Println(applicantId.Int64, availpersonId.Int64)
 
 			if applicantId.Int64 == availpersonId.Int64 {
-				output := fmt.Sprintf("INSERT INTO application (version, person_id, status) VALUES (1, %d, 'unhandled');", availpersonId.Int64)
+				output := fmt.Sprintf("INSERT INTO application (version, person, status) VALUES (1, %d, 'unhandled');", availpersonId.Int64)
 
 				writeToFile(output)
 			}
