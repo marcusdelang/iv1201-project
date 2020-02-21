@@ -1,43 +1,45 @@
-const { Application, exists: applicationExists, find: findApplication, getAll: getAllApplications } = require('../model/Application')
+const {
+  Application, exists: applicationExists, find: findApplication, getAll: getAllApplications,
+} = require('../model/Application');
 
-async function createApplication (form, user) {
+async function createApplication(form, user) {
   if (await applicationExists(user.person_id)) {
-    throw { code: 409, message: 'Application already exists' }
+    throw { code: 409, message: 'Application already exists' };
   }
   try {
-    await new Application(form, user).store()
+    await new Application(form, user).store();
   } catch (error) {
-    throw { code: error.code, message: `Database Error ${error}` }
+    throw { code: error.code, message: `Database Error ${error}` };
   }
 }
 
-async function getApplicationsWithToken (user) {
+async function getApplicationsWithToken(user) {
   if (user.role === 2) {
-    const application = await getApplicantApplication(user.person_id)
-    return application
+    const application = await getApplicantApplication(user.person_id);
+    return application;
   }
 
   if (user.role === 1) {
-    const applications = await getRecruiterApplications()
-    return applications
+    const applications = await getRecruiterApplications();
+    return applications;
   }
 }
 
-async function getApplicationWithId (personId) {
-  const application = await getApplicantApplication(personId)
-  return application
+async function getApplicationWithId(personId) {
+  const application = await getApplicantApplication(personId);
+  return application;
 }
 
-async function getRecruiterApplications () {
-  return getAllApplications()
+async function getRecruiterApplications() {
+  return getAllApplications();
 }
 
-async function getApplicantApplication (personId) {
+async function getApplicantApplication(personId) {
   if (!await applicationExists(personId)) {
-    return []
+    return [];
   }
-  const application = await findApplication(personId)
-  return [application]
+  const application = await findApplication(personId);
+  return [application];
 }
 
-module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId }
+module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId };

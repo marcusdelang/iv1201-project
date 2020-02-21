@@ -1,40 +1,40 @@
-const bcrypt = require('bcryptjs')
-const NodeCache = require('node-cache')
+const bcrypt = require('bcryptjs');
+const NodeCache = require('node-cache');
 
-const myCache = new NodeCache({ stdTTL: 60 * 30, checkperiod: 60 * 10 })
-const saltRounds = 10
+const myCache = new NodeCache({ stdTTL: 60 * 30, checkperiod: 60 * 10 });
+const saltRounds = 10;
 
-async function encrypt (credentials) {
+async function encrypt(credentials) {
   return new Promise((resolve, reject) => {
-    bcrypt.hash(credentials, saltRounds, function (error, hash) {
+    bcrypt.hash(credentials, saltRounds, (error, hash) => {
       if (error) {
-        reject(error)
+        reject(error);
       }
-      resolve(hash)
-    })
-  })
+      resolve(hash);
+    });
+  });
 }
 
-function storeHash (hash, user) {
-  myCache.set(hash, user)
+function storeHash(hash, user) {
+  myCache.set(hash, user);
 }
 
-function getUser (hash) {
-  const user = myCache.get(hash)
-  return user
+function getUser(hash) {
+  const user = myCache.get(hash);
+  return user;
 }
 
-function isRecruiter (hash) {
-  return getUser(hash).role === 1
+function isRecruiter(hash) {
+  return getUser(hash).role === 1;
 }
 
-function isAuthenticated (hash) {
-  if (!hash) return false
-  const user = myCache.get(hash)
+function isAuthenticated(hash) {
+  if (!hash) return false;
+  const user = myCache.get(hash);
   if (!user) {
-    return false
+    return false;
   }
-  return true
+  return true;
 }
 
 module.exports = {
@@ -42,5 +42,5 @@ module.exports = {
   storeHash,
   isRecruiter,
   getUser,
-  isAuthenticated
-}
+  isAuthenticated,
+};
