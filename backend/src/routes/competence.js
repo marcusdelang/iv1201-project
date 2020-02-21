@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
   }
   let competences = []
   try {
-    competences = await competenceController.getAll() || []
+    competences = await competenceController.getAll()
   } catch (error) {
     return res.status(error.status).send(error.message)
   }
