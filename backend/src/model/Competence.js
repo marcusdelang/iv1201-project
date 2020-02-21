@@ -7,6 +7,9 @@ class Competence {
     this.store = async () => {
       await DAO.store(this)
     }
+    this.serialize = () => {
+      return this.name
+    }
   }
 }
 
