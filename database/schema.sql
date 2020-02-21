@@ -1,4 +1,6 @@
-CREATE TABLE Role (role_id SERIAL PRIMARY KEY, name VARCHAR(255));
+CREATE TABLE Role (
+    role_id SERIAL PRIMARY KEY, name VARCHAR(255)
+);
 
 CREATE TABLE Person (
     person_id SERIAL PRIMARY KEY,
@@ -7,7 +9,7 @@ CREATE TABLE Person (
     ssn VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role_id INTEGER REFERENCES Role NOT NULL,
+    role INTEGER REFERENCES Role NOT NULL,
     username VARCHAR(255) NOT NULL,
     UNIQUE (username),
     UNIQUE (ssn),
@@ -16,7 +18,7 @@ CREATE TABLE Person (
 
 CREATE TABLE Availability (
     availability_id SERIAL PRIMARY KEY,
-    person_id INTEGER REFERENCES person,
+    person INTEGER REFERENCES person,
     from_date DATE,
     to_date DATE
 );
@@ -28,8 +30,8 @@ CREATE TABLE Competence (
 
 CREATE TABLE Competence_profile (
     competence_profile_id SERIAL PRIMARY KEY,
-    person_id INTEGER REFERENCES person,
-    competence_id INTEGER REFERENCES competence,
+    person INTEGER REFERENCES person,
+    competence INTEGER REFERENCES competence,
     years_of_experience NUMERIC(4, 2)
 );
 
@@ -50,3 +52,8 @@ INSERT INTO Status (name) VALUES ('rejected');
 
 INSERT INTO Role (name) VALUES ('recruiter');
 INSERT INTO Role (name) VALUES ('applicant');
+
+INSERT INTO Competence (name) VALUES ('kassör');
+INSERT INTO Competence (name) VALUES ('bergochdalbanemekaniker');
+INSERT INTO Competence (name) VALUES ('dräktbärare');
+

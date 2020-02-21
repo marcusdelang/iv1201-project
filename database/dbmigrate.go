@@ -183,7 +183,7 @@ func migratePerson(db *sql.DB) error {
 
 		log.Println(personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
 
-		row := fmt.Sprintf("INSERT INTO person (person_id, name, surname, ssn, email, password, role_id, username) VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, '%s');", personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
+		row := fmt.Sprintf("INSERT INTO person (person_id, name, surname, ssn, email, password, role, username) VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, '%s');", personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
 		writeToFile(row)
 
 	}
@@ -308,7 +308,7 @@ func migrateCompetenceProfile(db *sql.DB) error {
 
 		log.Println(competenceProfileId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
 
-		row := fmt.Sprintf("INSERT INTO competence_profile (competence_profile_id, person, competence_id, years_of_experience) VALUES (%d, %d, %d, %.1f);", competenceId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
+		row := fmt.Sprintf("INSERT INTO competence_profile (competence_profile_id, person, competence, years_of_experience) VALUES (%d, %d, %d, %.1f);", competenceId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
 
 		writeToFile(row)
 	}
