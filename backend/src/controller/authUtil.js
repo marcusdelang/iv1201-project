@@ -25,7 +25,7 @@ function getUser (hash) {
 }
 
 function isRecruiter (hash) {
-  return getUser(hash).role_id === 1
+  return getUser(hash).role === 1
 }
 
 function isAuthenticated (hash) {

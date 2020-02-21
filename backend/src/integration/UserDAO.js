@@ -1,17 +1,17 @@
 const { Transaction } = require('./dbh')
 
-const PREPARED_STATEMENT_GET_APPLICANT_ROLE_ID = 'SELECT role_id FROM Role WHERE name = \'applicant\';'
-const PREPARED_STATEMENT_STORE_USER = 'INSERT INTO Person (name, surname, ssn, email, username, password, role_id) VALUES ($1, $2, $3, $4, $5, $6, $7);'
+const PREPARED_STATEMENT_GET_APPLICANT_ROLE = 'SELECT role_id FROM Role WHERE name = \'applicant\';'
+const PREPARED_STATEMENT_STORE_USER = 'INSERT INTO Person (name, surname, ssn, email, username, password, role) VALUES ($1, $2, $3, $4, $5, $6, $7);'
 const PREPARED_STATEMENT_FIND_USER = 'SELECT * FROM Person WHERE username = $1;'
 
 const transaction = new Transaction()
 
-async function getApplicantRoleId(transaction) {
-  const res = await transaction.query(PREPARED_STATEMENT_GET_APPLICANT_ROLE_ID)
+async function getApplicantRoleId (transaction) {
+  const res = await transaction.query(PREPARED_STATEMENT_GET_APPLICANT_ROLE)
   return res.rows[0].role_id
 }
 
-async function store(user) {
+async function store (user) {
   try {
     await transaction.start()
     const roleId = await getApplicantRoleId(transaction)
@@ -24,7 +24,7 @@ async function store(user) {
   }
 }
 
-async function find(username) {
+async function find (username) {
   try {
     await transaction.start()
     const res = await transaction.query(PREPARED_STATEMENT_FIND_USER, [username])

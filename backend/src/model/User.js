@@ -11,7 +11,7 @@ class User {
     this.email = details.email || null
     this.username = details.username || null
     this.password = details.password || null
-    this.role_id = details.role_id || null
+    this.role = details.role || null
 
     this.serialize = () => {
       return JSON.stringify({
@@ -20,7 +20,7 @@ class User {
         ssn: this.ssn,
         email: this.email,
         username: this.username,
-        role: this.role_id
+        role: this.role
       })
     }
 

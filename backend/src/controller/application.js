@@ -12,12 +12,12 @@ async function createApplication (form, user) {
 }
 
 async function getApplicationsWithToken (user) {
-  if (user.role_id === 2) {
+  if (user.role === 2) {
     const application = await getApplicantApplication(user.person_id)
     return application
   }
 
-  if (user.role_id === 1) {
+  if (user.role === 1) {
     const applications = await getRecruiterApplications()
     return applications
   }

@@ -3,7 +3,7 @@ const PREPARED_STATEMENT_FIND_ALL_COMPETENCES = 'SELECT name FROM Competence;'
 
 const transaction = new Transaction()
 
-async function findAll() {
+async function findAll () {
   try {
     await transaction.start()
     const competences = []

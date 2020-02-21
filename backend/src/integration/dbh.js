@@ -5,28 +5,28 @@ const db = new Pool({
   connectionString: dbConnectionString
 })
 
-async function endConnection() {
+async function endConnection () {
   await db.end()
 }
 
-async function startTransaction() {
+async function startTransaction () {
   const client = await db.connect()
   await client.query('BEGIN')
   return client
 }
 
-async function endTransaction(client) {
+async function endTransaction (client) {
   await client.query('COMMIT')
   client.release()
 }
 
-async function rollbackTransaction(client) {
+async function rollbackTransaction (client) {
   await client.query('ROLLBACK')
   client.release()
 }
 
 class Transaction {
-  constructor() {
+  constructor () {
     this.start = async () => {
       this.client = await startTransaction()
       this.active = true
