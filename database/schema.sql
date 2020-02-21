@@ -16,7 +16,7 @@ CREATE TABLE Person (
 
 CREATE TABLE Availability (
     availability_id SERIAL PRIMARY KEY,
-    person_id INTEGER REFERENCES person,
+    person INTEGER REFERENCES person,
     from_date DATE,
     to_date DATE
 );
@@ -28,7 +28,7 @@ CREATE TABLE Competence (
 
 CREATE TABLE Competence_profile (
     competence_profile_id SERIAL PRIMARY KEY,
-    person_id INTEGER REFERENCES person,
+    person INTEGER REFERENCES person,
     competence_id INTEGER REFERENCES competence,
     years_of_experience NUMERIC(4, 2)
 );
