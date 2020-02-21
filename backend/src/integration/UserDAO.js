@@ -1,4 +1,4 @@
-const db = require('./dbh')
+const {Transaction} = require('./dbh')
 
 const PREPARED_STATEMENT_GET_APPLICANT_ROLE_ID = 'SELECT role_id FROM Role WHERE name = \'applicant\';'
 const PREPARED_STATEMENT_STORE_USER = 'INSERT INTO Person (name, surname, ssn, email, username, password, role_id) VALUES ($1, $2, $3, $4, $5, $6, $7);'
@@ -7,8 +7,12 @@ const PREPARED_STATEMENT_FIND_USER = 'SELECT * FROM Person WHERE username = $1;'
 async function getApplicantRoleId () {
   let res
   try {
-    res = await db.query(PREPARED_STATEMENT_GET_APPLICANT_ROLE_ID)
+    const transaction = new Transaction()
+    await transaction.start()
+    res = await transaction.query(PREPARED_STATEMENT_GET_APPLICANT_ROLE_ID)
+    transaction.end()
   } catch (error) {
+    transaction.rollback()
     throw { code: 500, message: `Database error: ${error.message}` }
   }
   return res.rows[0].role_id
