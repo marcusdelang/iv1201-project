@@ -1,4 +1,6 @@
-CREATE TABLE Role (role_id SERIAL PRIMARY KEY, name VARCHAR(255));
+CREATE TABLE Role (
+    role_id SERIAL PRIMARY KEY, name VARCHAR(255)
+);
 
 CREATE TABLE Person (
     person_id SERIAL PRIMARY KEY,
@@ -7,7 +9,7 @@ CREATE TABLE Person (
     ssn VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role_id INTEGER REFERENCES Role NOT NULL,
+    role INTEGER REFERENCES Role NOT NULL,
     username VARCHAR(255) NOT NULL,
     UNIQUE (username),
     UNIQUE (ssn),
@@ -29,7 +31,7 @@ CREATE TABLE Competence (
 CREATE TABLE Competence_profile (
     competence_profile_id SERIAL PRIMARY KEY,
     person INTEGER REFERENCES person,
-    competence_id INTEGER REFERENCES competence,
+    competence INTEGER REFERENCES competence,
     years_of_experience NUMERIC(4, 2)
 );
 
