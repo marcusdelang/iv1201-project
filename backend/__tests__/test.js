@@ -3,31 +3,28 @@ const path = require('path')
 const config = require('../src/config')
 const { port } = config
 
-const { Client } = require('pg')
-const { dbConnectionString } = require('../src/integration/dbconfig')
-const db = new Client({
-  connectionString: dbConnectionString
-})
+const { Transaction, endConnection } = require('../../backend/src/integration/dbh')
+const transaction = new Transaction()
 let testAppId
 let testRecId
 let testCompId
 
-async function clearDB () {
+async function clearDB(transaction) {
   return Promise.all([
-    db.query('DELETE FROM Competence_profile *'),
-    db.query('DELETE FROM Competence *'),
-    db.query('DELETE FROM Application *'),
-    db.query('DELETE FROM Availability *'),
-    db.query('DELETE FROM Person *')
+    transaction.query('DELETE FROM Competence_profile *'),
+    transaction.query('DELETE FROM Competence *'),
+    transaction.query('DELETE FROM Application *'),
+    transaction.query('DELETE FROM Availability *'),
+    transaction.query('DELETE FROM Person *')
   ])
 }
 
-async function buildTestDB () {
+async function buildTestDB(transaction) {
   return Promise.all([
-    db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')'),
-    db.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
+    transaction.query('INSERT INTO Competence (name) VALUES (\'testcomp\')'),
+    transaction.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
       'VALUES (\'testapp\', \'testapp\', \'testapp\', \'testapp@mail.com\', \'testapp\', \'testapp\', 2);'),
-    db.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
+    transaction.query('INSERT INTO Person (name, surname, ssn, email, username, password, role_id) ' +
       'VALUES (\'testrec\', \'testrec\', \'testrec\', \'testrec@mail.com\', \'testrec\', \'testrec\', 1);')
   ])
 }
@@ -35,17 +32,19 @@ async function buildTestDB () {
 describe('Endpoint: /api', () => {
   beforeAll(async done => {
     try {
-      db.connect()
-      await clearDB()
+      await transaction.start()
+      await clearDB(transaction)
+      await transaction.end()
       return done()
     } catch (error) {
+      await transaction.rollback()
       return done(error)
     }
   })
 
   afterAll(async done => {
     try {
-      db.end()
+      endConnection()
       return done()
     } catch (error) {
       return done(error)
@@ -54,21 +53,27 @@ describe('Endpoint: /api', () => {
 
   beforeEach(async done => {
     try {
-      await buildTestDB()
-      testAppId = (await db.query('SELECT * FROM Person WHERE username = \'testapp\'')).rows[0].person_id
-      testRecId = (await db.query('SELECT * FROM Person WHERE username = \'testrec\'')).rows[0].person_id
-      testCompId = (await db.query('SELECT * FROM Competence WHERE name = \'testcomp\'')).rows[0].competence_id
+      await transaction.start()
+      await buildTestDB(transaction)
+      testAppId = (await transaction.query('SELECT * FROM Person WHERE username = \'testapp\'')).rows[0].person_id
+      testRecId = (await transaction.query('SELECT * FROM Person WHERE username = \'testrec\'')).rows[0].person_id
+      testCompId = (await transaction.query('SELECT * FROM Competence WHERE name = \'testcomp\'')).rows[0].competence_id
+      await transaction.end()
       return done()
     } catch (error) {
+      await transaction.rollback()
       return done(error)
     }
   })
 
   afterEach(async done => {
     try {
-      await clearDB()
+      await transaction.start()
+      await clearDB(transaction)
+      await transaction.end()
       return done()
     } catch (error) {
+      await transaction.rollback()
       return done(error)
     }
   })
@@ -104,7 +109,6 @@ describe('Endpoint: /api', () => {
           }
         })
         expect(res.status).toEqual(201)
-        await db.query('DELETE FROM Person WHERE username = \'username1\'')
         return done()
       } catch (error) {
         return done(error)
@@ -151,15 +155,19 @@ describe('Endpoint: /api', () => {
   })
 
   describe('Endpoint: /api/application', () => {
-    async function createTestApplication () {
-      await db.query(`INSERT INTO Availability (person_id, from_date, to_date) VALUES (${testAppId}, '2020-02-20', '2020-02-21')`)
-      await db.query(`INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES (${testAppId}, ${testCompId}, 10)`)
-      await db.query(`INSERT INTO Application (person) VALUES (${testAppId})`)
+    async function createTestApplication() {
+      await transaction.start()
+      await transaction.query(`INSERT INTO Availability (person_id, from_date, to_date) VALUES (${testAppId}, '2020-02-20', '2020-02-21')`)
+      await transaction.query(`INSERT INTO Competence_profile (person_id, competence_id, years_of_experience) VALUES (${testAppId}, ${testCompId}, 10)`)
+      await transaction.query(`INSERT INTO Application (person) VALUES (${testAppId})`)
+      await transaction.end()
     }
 
     test('POST => 201 It should successfully create an application', async (done) => {
       try {
-        await db.query('INSERT INTO Competence (name) VALUES (\'testcomp\')')
+        await transaction.start()
+        await transaction.query('INSERT INTO Competence (name) VALUES (\'testcomp\')')
+        await transaction.end()
         let res = await axios.post(`http://localhost:${port}/api/login`, { username: 'testapp', password: 'testapp' })
         const headers = { auth: res.data.auth }
         const data = {
@@ -172,13 +180,14 @@ describe('Endpoint: /api', () => {
         expect(res.status).toEqual(201)
         return done()
       } catch (error) {
+        await transaction.rollback()
         return done(error)
       }
     })
 
     test('POST => 409 Create application if already exists for person', async (done) => {
       try {
-        await createTestApplication()
+        await createTestApplication(transaction)
         let res = await axios.post(`http://localhost:${port}/api/login`, { username: 'testapp', password: 'testapp' })
         const headers = { auth: res.data.auth }
         const data = {
@@ -197,7 +206,7 @@ describe('Endpoint: /api', () => {
 
     test('GET => 200 Should return applicant application in list', async (done) => {
       try {
-        await createTestApplication()
+        await createTestApplication(transaction)
         let res = await axios.post(`http://localhost:${port}/api/login`, {
           username: 'testapp',
           password: 'testapp'
@@ -217,7 +226,7 @@ describe('Endpoint: /api', () => {
     })
     test('GET => 200 Should return recruiter applications in list', async (done) => {
       try {
-        await createTestApplication()
+        await createTestApplication(transaction)
         let res = await axios.post(`http://localhost:${port}/api/login`, {
           username: 'testrec',
           password: 'testrec'
@@ -236,7 +245,7 @@ describe('Endpoint: /api', () => {
 
     test('GET => 200 Recruiter search applicant by person ID', async (done) => {
       try {
-        await createTestApplication()
+        await createTestApplication(transaction)
         let res = await axios.post(`http://localhost:${port}/api/login`, {
           username: 'testrec',
           password: 'testrec'
@@ -276,7 +285,7 @@ describe('Endpoint: /api', () => {
 
     test('GET => 401 Access application without authentication', async (done) => {
       try {
-        await createTestApplication()
+        await createTestApplication(transaction)
         res = await axios.get(`http://localhost:${port}/api/application`)
         return done({ message: 'Should throw error on 401' })
       } catch (error) {
@@ -287,7 +296,7 @@ describe('Endpoint: /api', () => {
 
     test('GET => 403 Applicant search applicant by person ID', async (done) => {
       try {
-        await createTestApplication()
+        await createTestApplication(transaction)
         let res = await axios.post(`http://localhost:${port}/api/login`, {
           username: 'testapp',
           password: 'testapp'

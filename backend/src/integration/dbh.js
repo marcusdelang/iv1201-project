@@ -5,6 +5,10 @@ const db = new Pool({
   connectionString: dbConnectionString
 })
 
+async function endConnection() {
+  await db.end()
+}
+
 async function startTransaction() {
   const client = await db.connect()
   await client.query('BEGIN')
@@ -22,21 +26,27 @@ async function rollbackTransaction(client) {
 }
 
 class Transaction {
-  start = async () => {
-    this.client = await startTransaction()
-  }
-  query = async (query, values) => {
-    const res = await this.client.query(query, values)
-    return res
-  }
-  end = async () => {
-    await endTransaction(this.client)
-  }
-  rollback = async () => {
-    await rollbackTransaction(this.client)
+  constructor() {
+    this.start = async () => {
+      this.client = await startTransaction()
+      this.active = true
+    }
+    this.query = async (query, values) => {
+      const res = await this.client.query(query, values)
+      return res
+    }
+    this.end = async () => {
+      await endTransaction(this.client)
+      this.active = false
+    }
+    this.rollback = async () => {
+      await rollbackTransaction(this.client)
+      this.active = false
+    }
   }
 }
 
 module.exports = {
-  Transaction
+  Transaction,
+  endConnection
 }
