@@ -10,7 +10,6 @@ async function encrypt (credentials) {
       if (error) {
         reject(error)
       }
-      console.log(hash)
       resolve(hash)
     })
   })
