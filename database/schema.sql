@@ -50,3 +50,8 @@ INSERT INTO Status (name) VALUES ('rejected');
 
 INSERT INTO Role (name) VALUES ('recruiter');
 INSERT INTO Role (name) VALUES ('applicant');
+
+INSERT INTO Competence (name) VALUES ('kassör');
+INSERT INTO Competence (name) VALUES ('bergochdalbanemekaniker');
+INSERT INTO Competence (name) VALUES ('dräktbärare');
+
