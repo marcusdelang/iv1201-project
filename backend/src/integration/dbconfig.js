@@ -1,7 +1,8 @@
 
-const config = require('../config')
-const { dbConnectionString } = config
+const config = require('../config');
+
+const { dbConnectionString } = config;
 
 module.exports = {
-  dbConnectionString
-}
+  dbConnectionString,
+};
