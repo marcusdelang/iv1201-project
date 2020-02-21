@@ -1,11 +1,12 @@
-const { getAll: getAllCompetences } = require('../model/Competence')
+const { getAll: getAllCompetences } = require('../model/Competence');
 
-async function getAll () {
+async function getAll() {
   try {
-    return await getAllCompetences()
+    const competenceObjects = await getAllCompetences();
+    return competenceObjects.map((competence) => competence.serialize(competence));
   } catch (error) {
-    throw { code: error.code, message: `Could not find competences: ${error.message}` }
+    throw { code: error.code, message: `Could not find competences: ${error.message}` };
   }
 }
 
-module.exports = { getAll }
+module.exports = { getAll };

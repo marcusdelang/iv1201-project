@@ -1,20 +1,21 @@
-const express = require('express')
-const router = express.Router()
-const authUtil = require('../controller/authUtil')
-const competenceController = require('../controller/competence')
+const express = require('express');
+
+const router = express.Router();
+const authUtil = require('../controller/authUtil');
+const competenceController = require('../controller/competence');
 
 router.get('/', async (req, res) => {
   if (!authUtil.isAuthenticated(req.headers.auth)) {
-    const error = { code: 401, message: 'Please sign in' }
-    return res.status(error.code).send(error.message)
+    const error = { code: 401, message: 'Please sign in' };
+    return res.status(error.code).send(error.message);
   }
-  let competences = []
+  let competences = [];
   try {
-    competences = await competenceController.getAll() || []
+    competences = await competenceController.getAll();
   } catch (error) {
-    return res.status(error.status).send(error.message)
+    return res.status(error.status).send(error.message);
   }
-  res.status(200).send(competences)
-})
+  res.status(200).send(competences);
+});
 
-module.exports = router
+module.exports = router;

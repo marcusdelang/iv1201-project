@@ -1,16 +1,17 @@
-const express = require('express')
-const router = express.Router()
-const authController = require('../controller/auth')
+const express = require('express');
+
+const router = express.Router();
+const authController = require('../controller/auth');
 
 router.post('/', async (req, res) => {
-  let token
-  const { username, password } = req.body
+  let token;
+  const { username, password } = req.body;
   try {
-    token = await authController.auth({ username, password })
+    token = await authController.auth({ username, password });
   } catch (error) {
-    return res.status(error.code).send(error.message)
+    return res.status(error.code).send(error.message);
   }
-  res.send(token)
-})
+  res.send(token);
+});
 
-module.exports = router
+module.exports = router;
