@@ -25,6 +25,7 @@ class Home extends React.Component {
   render() {
     return (
       <div>
+        {localStorage.getItem("loginMessage") && this.renderMessage('Success! You have created an account, please login')}
         {localStorage.getItem("loginMessage") && this.renderMessage('You are now logged in!')}
         {localStorage.getItem("loginMessage") ? this.removeLoginMessage() : ""}
         {!localStorage.getItem('auth') && this.renderMessage('Signup now to apply for the job of a lifetime!')}

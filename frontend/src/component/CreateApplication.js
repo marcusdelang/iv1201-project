@@ -29,7 +29,7 @@ class CreateApplication extends React.Component {
   async componentDidMount(){
     console.log(this.state.workOptions)
 
-    const response = await axios.get('/api/competence',{headers: {auth: localStorage.getItem('auth')}})
+    const response = await axios.get('http://localhost:80/api/competence',{headers: {auth: localStorage.getItem('auth')}})
     this.setState({workOptions: [...this.state.workOptions, ...response.data]})
   }
   
@@ -96,7 +96,7 @@ class CreateApplication extends React.Component {
 
   submitApplication = async () => {
     if(this.state.workPeriod.length > 0){
-      const response = await axios.post('/api/application',{
+      const response = await axios.post('http://localhost:80/api/application',{
         form: {
           availabilities: this.state.workPeriod,
           competences: this.state.storedWorkOptions

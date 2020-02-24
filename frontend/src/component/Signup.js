@@ -47,7 +47,7 @@ if (form.checkValidity() === false) {
 } else {
     console.log(this.state)
     const {name, surname, ssn, email, username, password} = this.state
-    const response = await axios.post('/api/user', {
+    const response = await axios.post('http://localhost:80/api/user', {
         user: {
             name: name,
             surname: surname,
