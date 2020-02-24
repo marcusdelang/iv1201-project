@@ -1,5 +1,9 @@
 const { getAll: getAllCompetences } = require('../model/Competence');
 
+/**
+ * Gets all competences
+ * @return {Object[]} List of competences
+ */
 async function getAll() {
   try {
     const competenceObjects = await getAllCompetences();
