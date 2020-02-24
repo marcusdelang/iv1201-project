@@ -25,7 +25,13 @@ async function rollbackTransaction(client) {
   client.release();
 }
 
+/**
+ * Class representing a transaction.
+ */
 class Transaction {
+  /**
+   * Create a transaction.
+   */
   constructor() {
     this.start = async () => {
       this.client = await startTransaction();

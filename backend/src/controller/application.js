@@ -2,6 +2,12 @@ const {
   Application, exists: applicationExists, find: findApplication, getAll: getAllApplications,
 } = require('../model/Application');
 
+
+/**
+ * Creates an application for the user.
+ * @param {Object} form 
+ * @param {Object} user 
+ */
 async function createApplication(form, user) {
   if (await applicationExists(user.person_id)) {
     throw { code: 409, message: 'Application already exists' };
@@ -13,6 +19,11 @@ async function createApplication(form, user) {
   }
 }
 
+/**
+ * Returns a list of all applications for a user.
+ * @param {Object} user 
+ * @return {Object[]} User applications
+ */
 async function getApplicationsWithToken(user) {
   if (user.role === 2) {
     const application = await getApplicantApplication(user.person_id);
@@ -23,15 +34,17 @@ async function getApplicationsWithToken(user) {
     const applications = await getRecruiterApplications();
     return applications;
   }
+  return [];
 }
 
+/**
+ * Returns the application for the person ID.
+ * @param {number} personId 
+ * @return {Object[]}
+ */
 async function getApplicationWithId(personId) {
   const application = await getApplicantApplication(personId);
   return application;
-}
-
-async function getRecruiterApplications() {
-  return getAllApplications();
 }
 
 async function getApplicantApplication(personId) {
@@ -41,5 +54,10 @@ async function getApplicantApplication(personId) {
   const application = await findApplication(personId);
   return [application];
 }
+
+async function getRecruiterApplications() {
+  return getAllApplications();
+}
+
 
 module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId };

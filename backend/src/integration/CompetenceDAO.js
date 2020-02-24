@@ -4,6 +4,10 @@ const PREPARED_STATEMENT_FIND_ALL_COMPETENCES = 'SELECT name FROM Competence;';
 
 const transaction = new Transaction();
 
+/**
+ * Finds all competences.
+ * @return {Object[]} List of competences
+ */
 async function findAll() {
   try {
     await transaction.start();

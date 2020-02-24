@@ -1,6 +1,18 @@
+/**
+ * Credentials used for authentication.
+ * @typedef {Object} credentials
+ * @property {string} username - The Username
+ * @property {string} password - The password
+ */
+
 const authUtil = require('./authUtil');
 const { find: findUser } = require('../model/User');
 
+/**
+ * Creates a authenticated session for the user.
+ * @param {credentials} credentials 
+ * @return {Object} A hash and the user
+ */
 async function auth(credentials) {
   const { username, password } = credentials;
   let foundUser;
