@@ -54,3 +54,7 @@ This can then be loaded into a Heroku-hosted Postgres database by running the fo
 ```bash
 heroku pg:psql --app name-of-your-application-on-heroku < database/database_dump.sql
 ```
+
+## Database model
+
+![](database/database_model.png)
