@@ -1,6 +1,13 @@
 const DAO = require('../integration/UserDAO');
 
+/**
+ * Represents a user.
+ */
 class User {
+  /**
+   * Create a user.
+   * @param {Object} details 
+   */
   constructor(details) {
     if (details.person_id) {
       this.person_id = details.person_id;
@@ -29,6 +36,11 @@ class User {
   }
 }
 
+/**
+ * Find a user.
+ * @param {string} username 
+ * @return {Object} A user.
+ */
 async function find(username) {
   const details = await DAO.find(username);
   const user = new User(details);

@@ -11,6 +11,10 @@ async function getApplicantRoleId(activeTransaction) {
   return res.rows[0].role_id;
 }
 
+/**
+ * Stores a user in the database.
+ * @param {Object} user 
+ */
 async function store(user) {
   try {
     await transaction.start();
@@ -32,6 +36,11 @@ async function store(user) {
   }
 }
 
+/**
+ * Find a user in the database.
+ * @param {string} username 
+ * @return {Object} A user
+ */
 async function find(username) {
   try {
     await transaction.start();

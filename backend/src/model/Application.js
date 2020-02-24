@@ -1,6 +1,14 @@
 const DAO = require('../integration/ApplicationDAO');
 
+/**
+ * Represents an application.
+ */
 class Application {
+  /**
+   * Create an application
+   * @param {Object} form 
+   * @param {Object} user 
+   */
   constructor(form, user) {
     form.version ? this.version = form.version : this.version = 1;
     form.status ? this.status = form.status : this.status = 'unhandled';
@@ -17,14 +25,28 @@ class Application {
   }
 }
 
+/**
+ * Checks if an application exists for a user.
+ * @param {number} personId 
+ * @return {boolean} Application exists
+ */
 async function exists(personId) {
   return DAO.exists(personId);
 }
 
+/**
+ * Finds an application for a user.
+ * @param {number} personId 
+ * @return {Object} An application
+ */
 async function find(personId) {
   return DAO.find(personId);
 }
 
+/**
+ * Gets all applications.
+ * @return {Object[]} List of applications
+ */
 async function getAll() {
   return DAO.getAll();
 }
