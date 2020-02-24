@@ -34,7 +34,6 @@ router.get('/', async (req, res) => {
       applications = await applicationController.getApplicationsWithToken(authUtil.getUser(req.headers.auth));
     }
   } catch (error) {
-    console.log(error);
     return res.status(error.code).send(error.message);
   }
   res.status(200).json(applications);

@@ -13,6 +13,18 @@ async function createApplication(form, user) {
   }
 }
 
+async function getApplicantApplication(personId) {
+  if (!await applicationExists(personId)) {
+    return [];
+  }
+  const application = await findApplication(personId);
+  return [application];
+}
+
+async function getRecruiterApplications() {
+  return getAllApplications();
+}
+
 async function getApplicationsWithToken(user) {
   if (user.role === 2) {
     const application = await getApplicantApplication(user.person_id);
@@ -23,23 +35,12 @@ async function getApplicationsWithToken(user) {
     const applications = await getRecruiterApplications();
     return applications;
   }
+  return [];
 }
 
 async function getApplicationWithId(personId) {
   const application = await getApplicantApplication(personId);
   return application;
-}
-
-async function getRecruiterApplications() {
-  return getAllApplications();
-}
-
-async function getApplicantApplication(personId) {
-  if (!await applicationExists(personId)) {
-    return [];
-  }
-  const application = await findApplication(personId);
-  return [application];
 }
 
 module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId };
