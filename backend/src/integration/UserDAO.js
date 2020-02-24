@@ -6,8 +6,8 @@ const PREPARED_STATEMENT_FIND_USER = 'SELECT * FROM Person WHERE username = $1;'
 
 const transaction = new Transaction();
 
-async function getApplicantRoleId(transaction) {
-  const res = await transaction.query(PREPARED_STATEMENT_GET_APPLICANT_ROLE);
+async function getApplicantRoleId(activeTransaction) {
+  const res = await activeTransaction.query(PREPARED_STATEMENT_GET_APPLICANT_ROLE);
   return res.rows[0].role_id;
 }
 
@@ -15,7 +15,15 @@ async function store(user) {
   try {
     await transaction.start();
     const roleId = await getApplicantRoleId(transaction);
-    const values = [user.name, user.surname, user.ssn, user.email, user.username, user.password, roleId];
+    const values = [
+      user.name,
+      user.surname,
+      user.ssn,
+      user.email,
+      user.username,
+      user.password,
+      roleId];
+
     await transaction.query(PREPARED_STATEMENT_STORE_USER, values);
     await transaction.end();
   } catch (error) {

@@ -1,10 +1,11 @@
 const express = require('express');
+const validator = require('../middlewares/validator');
 
 const router = express.Router();
 const applicationController = require('../controller/application');
 const authUtil = require('../controller/authUtil');
 
-router.post('/', async (req, res) => {
+router.post('/', validator.post.application, async (req, res) => {
   const token = req.headers.auth;
   if (!authUtil.isAuthenticated(token)) {
     const error = { code: 401, message: 'Please sign in' };
@@ -33,7 +34,6 @@ router.get('/', async (req, res) => {
       applications = await applicationController.getApplicationsWithToken(authUtil.getUser(req.headers.auth));
     }
   } catch (error) {
-    console.log(error);
     return res.status(error.code).send(error.message);
   }
   res.status(200).json(applications);

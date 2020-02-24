@@ -8,7 +8,7 @@ router.post('/', async (req, res) => {
     name, surname, ssn, username, password, email,
   } = req.body.user;
   try {
-    await userController.newUser({
+    await userController.createNewUser({
       name, surname, ssn, username, password, email,
     });
   } catch (error) {

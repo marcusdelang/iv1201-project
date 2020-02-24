@@ -17,13 +17,19 @@ async function store(application) {
     const {
       person, availabilities, competences, status, version,
     } = application;
-    await transaction.query(PREPARED_STATEMENT_STORE_APPLICATION, [version, person, status]);
-    for (const availability of availabilities) {
-      await transaction.query(PREPARED_STATEMENT_STORE_AVAILABILITY, [person, availability.from, availability.to]);
-    }
+    await transaction.query(PREPARED_STATEMENT_STORE_APPLICATION,
+      [version, person, status]);
+
+    const queries = [];
+    availabilities.forEach((availability) => {
+      queries.push(transaction.query(PREPARED_STATEMENT_STORE_AVAILABILITY,
+        [person, availability.from, availability.to]));
+    });
+    await Promise.all(queries);
     for (const competence of competences) {
       const res = await transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name]);
-      await transaction.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE, [person, res.rows[0].competence_id, competence.years_of_experience]);
+      await transaction.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE,
+        [person, res.rows[0].competence_id, competence.years_of_experience]);
     }
     await transaction.end();
   } catch (error) {
