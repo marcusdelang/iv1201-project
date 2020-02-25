@@ -53,6 +53,9 @@ INSERT INTO Status (name) VALUES ('rejected');
 INSERT INTO Role (name) VALUES ('recruiter');
 INSERT INTO Role (name) VALUES ('applicant');
 
+INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('applicant', 'applicant', '12345678-4321', 'applicant@applicant.se', 'applicant', 2, 'applicant');
+INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('recruiter', 'recruiter', '12345678-1234', 'recruiter@recruiter.se', 'recruiter', 1, 'recruiter');
+
 INSERT INTO Competence (name) VALUES ('kassör');
 INSERT INTO Competence (name) VALUES ('bergochdalbanemekaniker');
 INSERT INTO Competence (name) VALUES ('dräktbärare');
