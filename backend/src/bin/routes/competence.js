@@ -1,19 +1,19 @@
 const express = require('express');
 
 const router = express.Router();
-const authUtil = require('../controller/authUtil');
-const competenceController = require('../controller/competence');
+const authUtil = require('../../controller/authUtil');
+const competenceController = require('../../controller/competence');
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   if (!authUtil.isAuthenticated(req.headers.auth)) {
     const error = { code: 401, message: 'Please sign in' };
-    return res.status(error.code).send(error.message);
+   return next(error);
   }
   let competences = [];
   try {
     competences = await competenceController.getAll();
   } catch (error) {
-    return res.status(error.status).send(error.message);
+    return next(error)
   }
   res.status(200).send(competences);
 });
