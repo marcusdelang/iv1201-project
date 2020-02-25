@@ -1,27 +1,28 @@
 const express = require('express');
-const validator = require('../middlewares/validator');
+const validator = require('../../util/middlewares/validator');
 
 const router = express.Router();
-const applicationController = require('../controller/application');
-const authUtil = require('../controller/authUtil');
+const applicationController = require('../../controller/application');
+const authUtil = require('../../controller/authUtil');
 
-router.post('/', validator.post.application, async (req, res) => {
+router.post('/', validator.post.application, async (req, res, next) => {
   const token = req.headers.auth;
   if (!authUtil.isAuthenticated(token)) {
     const error = { code: 401, message: 'Please sign in' };
-    return res.status(error.code).send(error.message);
+    return next(error);
   }
   try {
     await applicationController.createApplication(req.body.form, authUtil.getUser(token));
   } catch (error) {
-    return res.status(error.code).send(error.message);
+    return next(error);
   }
   res.status(201).send('Application created');
 });
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   if (!authUtil.isAuthenticated(req.headers.auth)) {
-    return res.status(401).send('Please sign in');
+    const error = { code: 401, message: 'Please sign in' };
+    return next(error);
   }
 
   let applications;
@@ -34,7 +35,7 @@ router.get('/', async (req, res) => {
       applications = await applicationController.getApplicationsWithToken(authUtil.getUser(req.headers.auth));
     }
   } catch (error) {
-    return res.status(error.code).send(error.message);
+    return next(error);
   }
   res.status(200).json(applications);
 });

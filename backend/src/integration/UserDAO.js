@@ -13,7 +13,7 @@ async function getApplicantRoleId(activeTransaction) {
 
 /**
  * Stores a user in the database.
- * @param {Object} user 
+ * @param {Object} user
  */
 async function store(user) {
   try {
@@ -38,7 +38,7 @@ async function store(user) {
 
 /**
  * Find a user in the database.
- * @param {string} username 
+ * @param {string} username
  * @return {Object} A user
  */
 async function find(username) {

@@ -6,7 +6,7 @@ const saltRounds = 10;
 
 /**
  * Creates a hash from credentials.
- * @param {Object} credentials 
+ * @param {Object} credentials
  * @return {Promise<string>} Hashed credentials
  */
 async function encrypt(credentials) {
@@ -22,8 +22,8 @@ async function encrypt(credentials) {
 
 /**
  * Stores a hash and creates a session for the user.
- * @param {string} hash 
- * @param {Object} user 
+ * @param {string} hash
+ * @param {Object} user
  */
 function storeHash(hash, user) {
   myCache.set(hash, user);
@@ -31,7 +31,7 @@ function storeHash(hash, user) {
 
 /**
  * Gets the user details for the user with this hash.
- * @param {string} hash 
+ * @param {string} hash
  * @return {Object} A user
  */
 function getUser(hash) {
@@ -49,7 +49,7 @@ function isRecruiter(hash) {
 
 /**
  * Checks if the user with this hash is currently authenticated.
- * @param {string} hash 
+ * @param {string} hash
  * @return {boolean} is authenticated
  */
 function isAuthenticated(hash) {
