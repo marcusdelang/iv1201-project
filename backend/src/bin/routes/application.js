@@ -14,7 +14,7 @@ router.post('/', validator.post.application, async (req, res, next) => {
   try {
     await applicationController.createApplication(req.body.form, authUtil.getUser(token));
   } catch (error) {
-    return next(error)
+    return next(error);
   }
   res.status(201).send('Application created');
 });

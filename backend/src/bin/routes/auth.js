@@ -9,7 +9,7 @@ router.post('/', async (req, res, next) => {
   try {
     token = await authController.auth({ username, password });
   } catch (error) {
-    return next(error)
+    return next(error);
   }
   res.send(token);
 });

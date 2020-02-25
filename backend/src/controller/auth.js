@@ -1,3 +1,4 @@
+const logger = require('./../util/logger');
 /**
  * Credentials used for authentication.
  * @typedef {Object} credentials
@@ -10,7 +11,7 @@ const { find: findUser } = require('../model/User');
 
 /**
  * Creates a authenticated session for the user.
- * @param {credentials} credentials 
+ * @param {credentials} credentials
  * @return {Object} A hash and the user
  */
 async function auth(credentials) {
@@ -26,6 +27,7 @@ async function auth(credentials) {
   }
   const hash = await authUtil.encrypt(`${username}:${password}`);
   authUtil.storeHash(hash, foundUser);
+  logger.log(`Authenticated user ${foundUser.username}.`);
   return { auth: hash, user: foundUser.serialize() };
 }
 

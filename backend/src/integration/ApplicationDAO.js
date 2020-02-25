@@ -13,7 +13,7 @@ const transaction = new Transaction();
 
 /**
  * Store an application in the database.
- * @param {Object} application 
+ * @param {Object} application
  */
 async function store(application) {
   try {
@@ -44,7 +44,7 @@ async function store(application) {
 
 /**
  * Chekcs of an application exists in the database for a person.
- * @param {number} personId 
+ * @param {number} personId
  * @return {boolean} person exists
  */
 async function exists(personId) {
