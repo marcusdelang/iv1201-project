@@ -1,3 +1,4 @@
+const { StoreApplicationError } = require('./../error');
 const logger = require('./../util/logger');
 const {
   Application, exists: applicationExists, find: findApplication, getAll: getAllApplications,
@@ -10,14 +11,14 @@ const {
  * @param {Object} user
  */
 async function createApplication(form, user) {
-  if (await applicationExists(user.person_id)) {
-    throw { code: 409, message: 'Application already exists' };
-  }
   try {
+    if (await applicationExists(user.person_id)) {
+      throw {message: 'Application already exists for user ' + user.username };
+    }
     await new Application(form, user).store();
     logger.log(`Stored application for user ${user.username}`);
   } catch (error) {
-    throw { code: error.code, message: `Database Error ${error}` };
+    throw new StoreApplicationError(error);
   }
 }
 

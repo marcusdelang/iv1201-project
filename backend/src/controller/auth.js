@@ -1,3 +1,5 @@
+const { AuthError } = require('./../error');
+
 /**
  * Credentials used for authentication.
  * @typedef {Object} credentials
@@ -15,19 +17,19 @@ const { sign } = require('../util/authUtil');
  * @return {Object} A token and the user
  */
 async function auth(credentials) {
-  const { username, password } = credentials;
-  let foundUser;
   try {
+    const { username, password } = credentials;
+    let foundUser;
     foundUser = await findUser(username);
+    if (!foundUser.verifyPassword(password)) {
+      throw { message: 'invalid password' };
+    }
+    const token = await sign(credentials);
+    logger.log(`Authenticated user ${foundUser.username}.`);
+    return { auth: token, user: foundUser.serialize() };
   } catch (error) {
-    throw { code: error.code, message: `Could not find user: ${error.message}` };
+    throw new AuthError(error);
   }
-  if (!foundUser.verifyPassword(password)) {
-    throw { code: 401, message: 'Invalid password' };
-  }
-  const token = await sign(credentials);
-  logger.log(`Authenticated user ${foundUser.username}.`);
-  return { auth: token, user: foundUser.serialize() };
 }
 
-module.exports = { auth };
+  module.exports = { auth };

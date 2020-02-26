@@ -38,7 +38,7 @@ async function store(application) {
     await transaction.end();
   } catch (error) {
     await transaction.rollback();
-    throw { code: 500, message: `Database error: ${error.message}` };
+    throw error;
   }
 }
 

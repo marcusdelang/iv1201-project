@@ -1,3 +1,4 @@
+const { StoreUserError, FindUserError } = require('./../error');
 const { Transaction } = require('./dbh');
 
 const PREPARED_STATEMENT_GET_APPLICANT_ROLE = 'SELECT role_id FROM Role WHERE name = \'applicant\';';
@@ -32,7 +33,7 @@ async function store(user) {
     await transaction.end();
   } catch (error) {
     await transaction.rollback();
-    throw { code: 500, message: `Database error: ${error.message}` };
+    throw new StoreUserError(error);
   }
 }
 
@@ -46,13 +47,13 @@ async function find(username) {
     await transaction.start();
     const res = await transaction.query(PREPARED_STATEMENT_FIND_USER, [username]);
     if (res.rows.length === 0) {
-      throw { code: 500, message: 'No such user' };
+      throw { message: 'no user' };
     }
     await transaction.end();
     return res.rows[0];
   } catch (error) {
     await transaction.rollback();
-    throw { code: 500, message: `Database error: ${error.message}` };
+    throw new FindUserError(error);
   }
 }
 
