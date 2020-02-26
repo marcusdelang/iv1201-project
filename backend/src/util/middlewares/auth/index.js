@@ -1,4 +1,4 @@
-const authUtil = require('../../../controller/authUtil');
+const authUtil = require('../../authUtil');
 
 async function authenticate(req, res, next) {
   try {

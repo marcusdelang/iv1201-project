@@ -5,9 +5,9 @@
  * @property {string} password - The password
  */
 
-const logger = require('./../util/logger');
+const logger = require('../util/logger');
 const { find: findUser } = require('../model/User');
-const { sign } = require('./authUtil');
+const { sign } = require('../util/authUtil');
 
 /**
  * Creates a authenticated session for the user.
