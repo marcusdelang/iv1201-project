@@ -1,41 +1,62 @@
-const bcrypt = require('bcryptjs');
-const NodeCache = require('node-cache');
+const jwt = require('jsonwebtoken');
+const { find: findUser } = require('../model/User');
 
-const myCache = new NodeCache({ stdTTL: 60 * 30, checkperiod: 60 * 10 });
-const saltRounds = 10;
+// const { privateKey } = require('../config')
+const privateKey = 'privateKeyExample';
 
 /**
- * Creates a hash from credentials.
+ * Creates a token from credentials.
  * @param {Object} credentials
- * @return {Promise<string>} Hashed credentials
+ * @return {Promise<string>} A token
  */
-async function encrypt(credentials) {
+
+function sign(credentials) {
   return new Promise((resolve, reject) => {
-    bcrypt.hash(credentials, saltRounds, (error, hash) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(hash);
+    credentials.timestamp = Date.now();
+    jwt.sign(JSON.stringify(credentials), privateKey, { algorithm: 'HS256' }, (err, token) => {
+      if (err) return reject(err);
+      resolve(token);
     });
   });
 }
 
 /**
- * Stores a hash and creates a session for the user.
- * @param {string} hash
- * @param {Object} user
+ * Verifies a token.
+ * @param {string} token
+ * @return {Promise<Object>} A user.
  */
-function storeHash(hash, user) {
-  myCache.set(hash, user);
+async function isAuthenticated(token) {
+  try {
+    await getUser(token);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function verify(token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, privateKey, (error, decoded) => {
+      if (error) return reject(error);
+      if (Date.now() - decoded.date > 1800000) {
+        reject();
+      }
+      resolve(decoded);
+    });
+  });
 }
 
 /**
  * Gets the user details for the user with this hash.
- * @param {string} hash
+ * @param {string} token
  * @return {Object} A user
  */
-function getUser(hash) {
-  const user = myCache.get(hash);
+async function getUser(token) {
+  const { username, password } = await verify(token);
+  const user = await findUser(username);
+  if (!user.verifyPassword(password)) {
+    throw { code: 401, message: 'Invalid credentials' };
+  }
   return user;
 }
 /**
@@ -43,27 +64,13 @@ function getUser(hash) {
  * @param {string} hash
  * @return {boolean} a boolean
  */
-function isRecruiter(hash) {
-  return getUser(hash).role === 1;
-}
-
-/**
- * Checks if the user with this hash is currently authenticated.
- * @param {string} hash
- * @return {boolean} is authenticated
- */
-function isAuthenticated(hash) {
-  if (!hash) return false;
-  const user = myCache.get(hash);
-  if (!user) {
-    return false;
-  }
-  return true;
+async function isRecruiter(token) {
+  return (await getUser(token)).role === 1;
 }
 
 module.exports = {
-  encrypt,
-  storeHash,
+  sign,
+  verify,
   isRecruiter,
   getUser,
   isAuthenticated,

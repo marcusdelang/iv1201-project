@@ -1,38 +1,28 @@
 const express = require('express');
-const validator = require('../../util/middlewares/validator');
+const validate = require('../../util/middlewares/validate');
+const { authenticate, authorize } = require('../../util/middlewares/auth');
 
 const router = express.Router();
 const applicationController = require('../../controller/application');
-const authUtil = require('../../controller/authUtil');
 
-router.post('/', validator.post.application, async (req, res, next) => {
-  const token = req.headers.auth;
-  if (!authUtil.isAuthenticated(token)) {
-    const error = { code: 401, message: 'Please sign in' };
-    return next(error);
-  }
+router.post('/', [authenticate, validate.post.application], async (req, res, next) => {
   try {
-    await applicationController.createApplication(req.body.form, authUtil.getUser(token));
+    await applicationController.createApplication(req.body.form, req.auth.user);
   } catch (error) {
     return next(error);
   }
   res.status(201).send('Application created');
 });
 
-router.get('/', async (req, res, next) => {
-  if (!authUtil.isAuthenticated(req.headers.auth)) {
-    const error = { code: 401, message: 'Please sign in' };
-    return next(error);
-  }
-
+router.get('/', [authenticate, authorize], async (req, res, next) => {
   let applications;
   try {
-    if (req.query && req.query.personId && authUtil.isRecruiter(req.headers.auth)) {
+    if (req.query && req.query.personId && req.auth.isRecruiter) {
       applications = await applicationController.getApplicationWithId(req.query.personId);
-    } else if (req.query && req.query.personId && !authUtil.isRecruiter(req.headers.auth)) {
+    } else if (req.query && req.query.personId && !req.auth.isRecruiter) {
       return res.status(403).send('Can\'t touch this');
     } else {
-      applications = await applicationController.getApplicationsWithToken(authUtil.getUser(req.headers.auth));
+      applications = await applicationController.getApplicationsWithToken(req.auth.user);
     }
   } catch (error) {
     return next(error);

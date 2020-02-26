@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const dateFormat = require('dateformat');
 const path = require('path');
-const {logLevel, logFilePath} = require('../../config');
+const { logLevel, logFilePath } = require('../../config');
 
 const logFile = path.join(logFilePath, 'log.log');
 const errorFile = path.join(logFilePath, 'error.log');
