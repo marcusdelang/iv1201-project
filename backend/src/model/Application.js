@@ -10,8 +10,6 @@ class Application {
    * @param {Object} user
    */
   constructor(form, user) {
-    form.version ? this.version = form.version : this.version = 1;
-    form.status ? this.status = form.status : this.status = 'unhandled';
     this.version = form.version || 1;
     this.status = form.status || 'unhandled';
     const { availabilities, competences } = form;

@@ -38,7 +38,7 @@ async function getApplicationsWithToken(user) {
     logger.log(`Recruiter ${user.username} fetched all applications.`);
     return applications;
   }
-  logger.log(`User ${user.username} tried to fetch appications but did not have 'appicant' or 'recruiter' role.`);
+  logger.log(`User ${user.username} tried to fetch appications but did not have 'applicant' or 'recruiter' role.`);
   return [];
 }
 

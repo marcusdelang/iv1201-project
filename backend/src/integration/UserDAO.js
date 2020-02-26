@@ -46,7 +46,7 @@ async function find(username) {
     await transaction.start();
     const res = await transaction.query(PREPARED_STATEMENT_FIND_USER, [username]);
     if (res.rows.length === 0) {
-      throw { code: 404, message: 'No such user' };
+      throw { code: 500, message: 'No such user' };
     }
     await transaction.end();
     return res.rows[0];

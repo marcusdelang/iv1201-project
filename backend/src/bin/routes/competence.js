@@ -1,14 +1,10 @@
 const express = require('express');
+const { authenticate } = require('../../util/middlewares/auth');
 
 const router = express.Router();
-const authUtil = require('../../controller/authUtil');
 const competenceController = require('../../controller/competence');
 
-router.get('/', async (req, res, next) => {
-  if (!authUtil.isAuthenticated(req.headers.auth)) {
-    const error = { code: 401, message: 'Please sign in' };
-    return next(error);
-  }
+router.get('/', [authenticate], async (req, res, next) => {
   let competences = [];
   try {
     competences = await competenceController.getAll();
