@@ -1,60 +1,71 @@
-import React from 'react'
-import axios from 'axios'
-import {Redirect} from 'react-router-dom';
+import React from "react";
+import axios from "axios";
+import { Redirect } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 
-import UserApplication from './component/UserApplication'
+import Card from "react-bootstrap/Card";
+import Modal from "react-bootstrap/Modal";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 
-class ShowApplication extends React.Component{
+class ShowApplication extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      applications: [],
+      user: this.props.appState.user,
+      modalShow: false,
+    };
+  }
 
-    constructor(props){
-        super(props)
-        this.state={
-            application: [],
-            user:   this.props.appState.user
-        }
+  componentDidMount() {
+    console.log("hello");
+    this.getApplications();
+  }
+
+  getApplications = async () => {
+    const response = await axios.get(`http://localhost:80/api/application`, {
+      headers: { auth: localStorage.getItem("auth") }
+    });
+    const {} = response.data;
+    console.log(response.data);
+    this.setState({
+      applications: response.data
+    });
+    console.log(this.state);
+  };
+
+  renderApplication = () => {
+    const { applications, user } = this.state;
+    return applications.map(app => (
+      <Card version={app.version}>
+        <Card.Body>
+          <Row>
+            <Col>Applicant: {app.name + " " + app.surname}</Col>
+            <Col>SSN: {app.ssn}</Col>
+            <Col>Email: {app.email}</Col>
+            <Col>Status: {app.status}</Col>
+          </Row>
+          <Row>
+            <Col>
+              <Button size="sm" onClick={this.renderModal}>More information</Button>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+    ));
+  };
+
+  render() {
+    if (!this.props.appState.auth) {
+      return <Redirect to="/home" />;
     }
-
-    componentDidMount(){
-        this.setState(
-            { name: "Michael" },
-            () => this.getApplication()
-          );
-    }
-
-    getApplication = async () =>{
-       const response = await axios.get(`/api/application`,{headers: {auth: localStorage.getItem('auth')}})
-           const {availabilities, version, competences } = response.data[0]
-           const application = response.data;
-           this.setState({
-               availabilities: availabilities,
-               version: version,
-               competences: competences,
-               application: application
-    
-           })
-           console.log("state",this.state)
-    }
-
-    renderApplication = () => {
-       const {application, user} = this.state
-       return application.map((app)=>
-            <UserApplication key={app.person}
-               application={app}
-               user={user}
-            />
-       );
-    }
-
-    render(){
-        if(!this.props.appState.auth){
-            return <Redirect to="/home" />
-        }
-        return(
-            <div>
-                {this.renderApplication()}
-            </div>
-        );
-    }
+    return (
+    <div>
+        {this.renderApplication()}
+    </div>
+    );
+  }
 }
 
-export default ShowApplication; 
+export default ShowApplication;

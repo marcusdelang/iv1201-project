@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useReducer } from 'react'
 import axios from 'axios'
 import {Redirect} from 'react-router-dom';
 
@@ -18,14 +18,14 @@ class ShowApplication extends React.Component{
     }
 
     componentDidMount(){
-        this.setState(
-            { name: "Michael" },
-            () => this.getApplication()
-          );
+        const {user} = this.state
+        if(user.role == 2){
+            this.getApplication()
+        }
     }
 
     getApplication = async () =>{
-       const response = await axios.get(`/api/application`,{headers: {auth: localStorage.getItem('auth')}})
+       const response = await axios.get(`http://localhost:80/api/application`,{headers: {auth: localStorage.getItem('auth')}})
        if(response.data.length > 0){
            const {availabilities, version, competences } = response.data[0]
            const application = response.data;
@@ -34,7 +34,6 @@ class ShowApplication extends React.Component{
                version: version,
                competences: competences,
                application: application
-    
            })
        }
        console.log("state",this.state)
