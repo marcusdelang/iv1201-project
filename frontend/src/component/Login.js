@@ -14,7 +14,7 @@ class Login extends React.Component {
     super(props);
     this.state = {
       username: "",
-      password: "",
+      password: ""
     };
   }
   handler = async e => {
@@ -26,9 +26,8 @@ class Login extends React.Component {
 
   login = async e => {
     e.preventDefault();
-    console.log(this.state);
     if (this.state.username !== "" && this.state.password !== "") {
-      const response = await axios.post("/api/login", {
+      const response = await axios.post("http://localhost:80/api/login", {
         username: this.state.username,
         password: this.state.password
       });
@@ -36,8 +35,12 @@ class Login extends React.Component {
       if (response.status === 401) {
         //   console.log(response.statusText)
       } else if (response.status === 200) {
-        this.props.changeAppState("auth", response.data.auth);
-        this.props.changeAppState("user", response.data.user);
+        const { changeAppState, checkApplicationExist } = this.props;
+        changeAppState("auth", response.data.auth);
+        changeAppState("user", response.data.user);
+        const user = JSON.parse(response.data.user);
+        changeAppState("role", user.role);
+        checkApplicationExist();
       }
     } else {
       console.log("invalid input");

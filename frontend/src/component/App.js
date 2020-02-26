@@ -22,8 +22,11 @@ class App extends React.Component {
       auth: localStorage.getItem('auth'),
       user: JSON.parse(localStorage.getItem('user')),
       role: localStorage.getItem('role'),
-      applicationExists: localStorage.getItem('applicationExists')
+      applicationExists: JSON.parse(localStorage.getItem('applicationExists'))
     }
+  }
+
+  logout = () => {
   }
 
   changeAppState = (name, value) => {
@@ -34,7 +37,7 @@ class App extends React.Component {
   }
 
   checkApplicationExist = async () => {
-      const response = await axios.get(`/api/application`,{headers: {auth: localStorage.getItem('auth')}})
+      const response = await axios.get(`http://localhost:80/api/application`,{headers: {auth: localStorage.getItem('auth')}})
       const applicationsExists = response.data.length > 0 ? true : false
       this.changeAppState("applicationExists", applicationsExists)
   }
@@ -42,11 +45,15 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <AppNavbar appState={this.state} changeAppState={this.changeAppState} checkApplicationExist={this.checkApplicationExist}/>
+        <AppNavbar 
+          appState={this.state} 
+          changeAppState={this.changeAppState} 
+          logout={this.logout}
+          />
         <BrowserRouter>
           <Switch>
             <Route exact path="/home" render={(props) => <Home />} />
-            <Route exact path="/login" render={(props) => <Login appState={this.state} changeAppState={this.changeAppState} checkApplicationExist={this.checkApplicationExist} />} />
+            <Route exact path="/login" render={(props) => <Login checkApplicationExist={this.checkApplicationExist} appState={this.state} changeAppState={this.changeAppState} checkApplicationExist={this.checkApplicationExist} />} />
             <Route exact path="/signup" render={(props) => <Signup appState={this.state} />} />
             <Route exact path="/application" render={(props) => <ShowApplication appState={this.state} />} />
             <Route exact path="/applications" render={(props) => <Home />} />
