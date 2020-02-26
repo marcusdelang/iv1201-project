@@ -18,18 +18,17 @@ class CreateApplication extends React.Component {
     this.state = {
       workOptions: [""],
       workExp: "",
-      workExpYears: "",
+      workExpYears: null,
       storedWorkOptions: [],
       years: ["", 1, 2, 3, 4, 5, 6, 7, 9, 10],
       workPeriod: [],
-
     };
   }
 
   async componentDidMount(){
     console.log(this.state.workOptions)
-
     const response = await axios.get('http://localhost:80/api/competence',{headers: {auth: localStorage.getItem('auth')}})
+    console.log(response)
     this.setState({workOptions: [...this.state.workOptions, ...response.data]})
   }
   
@@ -52,12 +51,15 @@ class CreateApplication extends React.Component {
       this.setState({[error]: "That option is not valid, try again" });
     }
   };
+
   handler = async e => {
     const { id, value } = await e.target;
     this.setState({
-      [id]: value
+      [id]: /^-{0,1}\d+$/.test(value) ? parseInt(value) : value
     });
+    console.log(this.state)
   };
+
   renderSelected = selected => {
     return selected.map((entry, index) => (
       <Card key={index}>
@@ -70,6 +72,8 @@ class CreateApplication extends React.Component {
       </Card>
     ));
   };
+
+
   renderSelectedPeriod = selected => {
     return selected.map((entry, index) => (
       <Card key={index}>
@@ -123,12 +127,7 @@ class CreateApplication extends React.Component {
   }
 
   renderForm = () => {
-    if(this.state.submitSuccess){
-      return <Redirect to={{
-          pathname: '/home',
-          state: { applySuccess: 'success'}
-      }}/>
-    }
+    
     return (
       <div style={styles.container}>
         <Card style={(styles.card, { minWidth: "400px" })}>
@@ -173,6 +172,14 @@ class CreateApplication extends React.Component {
   };
 
   render() {
+    if(!this.props.appState.auth){
+      return <Redirect to="/home" />
+    } else if(this.state.submitSuccess){
+      return <Redirect to={{
+          pathname: '/home',
+          state: { applySuccess: 'success'}
+      }}/>
+    }
     return this.renderForm();
   }
 }

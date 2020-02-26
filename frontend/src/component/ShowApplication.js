@@ -2,7 +2,10 @@ import React from 'react'
 import axios from 'axios'
 import {Redirect} from 'react-router-dom';
 
+
 import UserApplication from './component/UserApplication'
+
+
 
 class ShowApplication extends React.Component{
 
@@ -23,6 +26,7 @@ class ShowApplication extends React.Component{
 
     getApplication = async () =>{
        const response = await axios.get(`http://localhost:80/api/application`,{headers: {auth: localStorage.getItem('auth')}})
+       if(response.data.length > 0){
            const {availabilities, version, competences } = response.data[0]
            const application = response.data;
            this.setState({
@@ -32,7 +36,8 @@ class ShowApplication extends React.Component{
                application: application
     
            })
-           console.log("state",this.state)
+       }
+       console.log("state",this.state)
     }
 
     renderApplication = () => {
