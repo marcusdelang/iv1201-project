@@ -34,7 +34,7 @@ class App extends React.Component {
   }
 
   checkApplicationExist = async () => {
-      const response = await axios.get(`http://localhost:80/api/application`,{headers: {auth: localStorage.getItem('auth')}})
+      const response = await axios.get(`/api/application`,{headers: {auth: localStorage.getItem('auth')}})
       const applicationsExists = response.data.length > 0 ? true : false
       this.changeAppState("applicationExists", applicationsExists)
   }

@@ -50,7 +50,7 @@ class Signup extends React.Component {
       console.log(this.state);
       const { name, surname, ssn, email, username, password } = this.state;
       try{
-        const response = await axios.post("http://localhost:80/api/user", {
+        const response = await axios.post("/api/user", {
           user: {
             name: name,
             surname: surname,

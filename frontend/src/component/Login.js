@@ -28,7 +28,7 @@ class Login extends React.Component {
     e.preventDefault();
     console.log(this.state);
     if (this.state.username !== "" && this.state.password !== "") {
-      const response = await axios.post("http://localhost:80/api/login", {
+      const response = await axios.post("/api/login", {
         username: this.state.username,
         password: this.state.password
       });
