@@ -1,13 +1,13 @@
 const fs = require('fs').promises;
 const dateFormat = require('dateformat');
 const path = require('path');
+const {logLevel, logFilePath} = require('../../config');
 
-const env = process.env.NODE_ENV;
-const logFile = path.join(__dirname, '..', '..', '..', 'logs', 'log.log');
-const errorFile = path.join(__dirname, '..', '..', '..', 'logs', 'error.log');
+const logFile = path.join(logFilePath, 'log.log');
+const errorFile = path.join(logFilePath, 'error.log');
 
 function log(message) {
-  if (env === 'production') {
+  if (logLevel === 'file') {
     return fs.appendFile(logFile, `${timestamp(message)}\n`);
   }
   return new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ function log(message) {
 }
 
 function error(message) {
-  if (env === 'production') {
+  if (logLevel === 'file') {
     return fs.appendFile(errorFile, `${timestamp(message)}\n`);
   }
   return new Promise((resolve, reject) => {
