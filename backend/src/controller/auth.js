@@ -5,13 +5,14 @@
  * @property {string} password - The password
  */
 
-const authUtil = require('./authUtil');
+const logger = require('../util/logger');
 const { find: findUser } = require('../model/User');
+const { sign } = require('../util/authUtil');
 
 /**
  * Creates a authenticated session for the user.
- * @param {credentials} credentials 
- * @return {Object} A hash and the user
+ * @param {credentials} credentials
+ * @return {Object} A token and the user
  */
 async function auth(credentials) {
   const { username, password } = credentials;
@@ -24,9 +25,9 @@ async function auth(credentials) {
   if (!foundUser.verifyPassword(password)) {
     throw { code: 401, message: 'Invalid password' };
   }
-  const hash = await authUtil.encrypt(`${username}:${password}`);
-  authUtil.storeHash(hash, foundUser);
-  return { auth: hash, user: foundUser.serialize() };
+  const token = await sign(credentials);
+  logger.log(`Authenticated user ${foundUser.username}.`);
+  return { auth: token, user: foundUser.serialize() };
 }
 
 module.exports = { auth };

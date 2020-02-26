@@ -13,7 +13,7 @@ async function getApplicantRoleId(activeTransaction) {
 
 /**
  * Stores a user in the database.
- * @param {Object} user 
+ * @param {Object} user
  */
 async function store(user) {
   try {
@@ -38,7 +38,7 @@ async function store(user) {
 
 /**
  * Find a user in the database.
- * @param {string} username 
+ * @param {string} username
  * @return {Object} A user
  */
 async function find(username) {
@@ -46,7 +46,7 @@ async function find(username) {
     await transaction.start();
     const res = await transaction.query(PREPARED_STATEMENT_FIND_USER, [username]);
     if (res.rows.length === 0) {
-      throw { code: 404, message: 'No such user' };
+      throw { code: 500, message: 'No such user' };
     }
     await transaction.end();
     return res.rows[0];

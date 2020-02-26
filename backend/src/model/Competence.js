@@ -6,7 +6,7 @@ const DAO = require('../integration/CompetenceDAO');
 class Competence {
   /**
    * Create a competence.
-   * @param {string} name 
+   * @param {string} name
    */
   constructor(name) {
     this.name = name;

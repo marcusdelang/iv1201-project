@@ -78,23 +78,6 @@ describe('Endpoint: /api', () => {
     }
   });
 
-  describe('Endpoint: /api', () => {
-    const fs = require('fs');
-    test('GET => 200 It should return the API index page', async (done) => {
-      try {
-        const res = await axios.get(`http://localhost:${port}/api`);
-        fs.readFile(path.join(__dirname, '..', 'src', 'views', 'index.html'), (err, fileData) => {
-          if (err) return done(err);
-          expect(res.status).toEqual(200);
-          expect(res.data).toEqual(fileData.toString());
-          return done();
-        });
-      } catch (error) {
-        return done(error);
-      }
-    });
-  });
-
   describe('Endpoint: /api/user', () => {
     test('POST => 201 It should create a new user in database', async (done) => {
       try {
