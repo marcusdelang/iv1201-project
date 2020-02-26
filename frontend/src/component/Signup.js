@@ -63,7 +63,12 @@ class Signup extends React.Component {
         this.setState({ status: response.status });
         delete this.state.submitError;
       } catch(error){
-        console.log(error.response)
+        const {status, response} = error
+        if(status === 409){
+          this.setState({submitError: response.data.field + " already exists"})
+        } else if(status === 500){
+          this.setState({submitError: "Server problem, try again"})
+        }
       }
       }
   };

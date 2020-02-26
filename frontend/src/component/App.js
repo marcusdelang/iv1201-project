@@ -10,6 +10,7 @@ import AppNavbar from './AppNavbar';
 import Login from './Login';
 import Signup from './Signup';
 import CreateApplication from './CreateApplication';
+import ShowApplications from './ShowApplications'
 import ShowApplication from './ShowApplication'
 import axios from 'axios';
 
@@ -56,7 +57,7 @@ class App extends React.Component {
             <Route exact path="/login" render={(props) => <Login checkApplicationExist={this.checkApplicationExist} appState={this.state} changeAppState={this.changeAppState} checkApplicationExist={this.checkApplicationExist} />} />
             <Route exact path="/signup" render={(props) => <Signup appState={this.state} />} />
             <Route exact path="/application" render={(props) => <ShowApplication appState={this.state} />} />
-            <Route exact path="/applications" render={(props) => <Home />} />
+            <Route exact path="/applications" render={(props) => <ShowApplications appState={this.state}/>} />
             <Route exact path="/createApplication" render={(props) => <CreateApplication appState={this.state} checkApplicationExist={this.checkApplicationExist}/>} />
             <Route path="/" render={(props) => <Home />} />
           </Switch>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useReducer } from 'react'
 import axios from 'axios'
 import {Redirect} from 'react-router-dom';
 
@@ -18,10 +18,10 @@ class ShowApplication extends React.Component{
     }
 
     componentDidMount(){
-        this.setState(
-            { name: "Michael" },
-            () => this.getApplication()
-          );
+        const {user} = this.state
+        if(user.role == 2){
+            this.getApplication()
+        }
     }
 
     getApplication = async () =>{
@@ -34,7 +34,6 @@ class ShowApplication extends React.Component{
                version: version,
                competences: competences,
                application: application
-    
            })
        }
        console.log("state",this.state)
