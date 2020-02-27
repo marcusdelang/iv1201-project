@@ -32,7 +32,7 @@ class User {
     this.store = async () => {
       await DAO.store(this);
     };
-    this.verifyPassword = async (password) => password === this.password;
+    this.verifyPassword = (password) => password === this.password;
   }
 }
 
