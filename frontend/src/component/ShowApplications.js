@@ -37,16 +37,16 @@ class ShowApplication extends React.Component {
   renderApplications = () => {
     const {applications} = this.state
     return applications.map((app)=>
-         <UserApplication key={app.person}
+         <UserApplication 
+            key={app.person.id}
             application={app}
-            user={app.person}
             recruiter
          />
     );
  }
 
   render() {
-    if (!this.props.appState.auth) {
+    if (!this.props.appState.auth || !(JSON.parse(this.props.appState.role) === 1)) {
       return <Redirect to="/home" />;
     }
     return (
