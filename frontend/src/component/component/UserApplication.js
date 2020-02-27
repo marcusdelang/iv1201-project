@@ -59,7 +59,7 @@ class UserApplication extends React.Component {
     const pers = JSON.parse(person)
     const vers = JSON.parse(version)
     try{
-      await axios.put("http://localhost:80/api/application",{pers, vers, status},{headers: {auth: localStorage.getItem('auth')}})
+      await axios.put("/api/application",{pers, vers, status},{headers: {auth: localStorage.getItem('auth')}})
       this.setState({status: status})
       delete this.state.changeStatusError
     } catch(error){
