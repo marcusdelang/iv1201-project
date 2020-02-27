@@ -26,8 +26,6 @@ class Home extends React.Component {
   };
 
   render() {
-    const loginMessage = 'You are now logged in!'
-    const signUpMessage = 'Success! You have created an account, please login'
     return (
       <div>
   
