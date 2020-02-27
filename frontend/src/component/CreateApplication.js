@@ -26,20 +26,26 @@ class CreateApplication extends React.Component {
   }
 
   async componentDidMount() {
-    console.log(this.state.workOptions);
-    const response = await axios.get("http://localhost:80/api/competence", {
-      headers: { auth: localStorage.getItem("auth") }
-    });
-    console.log(response);
-    this.setState({
-      workOptions: [...this.state.workOptions, ...response.data]
-    });
+    try{
+      const response = await axios.get("http://localhost:80/api/competence", {
+        headers: { auth: localStorage.getItem("auth") }
+      });
+      this.setState({
+        workOptions: [...this.state.workOptions, ...response.data]
+      });
+      delete this.state.competenceError
+    } catch (error){
+      const {status} = error.response.data
+      if(status === 401){
+        this.setState({competenceError: "You are not logged in, relog"})
+      }
+    }
   }
 
-  remove(ele, arr) {
-    let index = arr.indexOf(ele);
-    if (index !== -1) arr.splice(index, 1);
-    return arr;
+  remove(element, array) {
+    const index = array.indexOf(element);
+    if (index !== -1) array.splice(index, 1);
+    return array;
   }
 
   addSelected = (type, years, store, options, error) => {
@@ -103,40 +109,32 @@ class CreateApplication extends React.Component {
   addWorkPeriod(startDay, endDay, startMonth, endMonth) {
     this.setState({
       workPeriod: [
-        ...this.state.workPeriod,
-        {
+        ...this.state.workPeriod,{
           from: "2020-" + startMonth + "-" + startDay,
           to: "2020-" + endMonth + "-" + endDay
-        }
-      ]
-    });
+        }] 
+      });
   }
 
   submitApplication = async () => {
     if (this.state.workPeriod.length > 0) {
       const response = await axios.post(
-        "http://localhost:80/api/application",
-        {
+        "http://localhost:80/api/application",{
           form: {
             availabilities: this.state.workPeriod,
             competences: this.state.storedWorkOptions
-          }
-        },
-        {
+          }},{
           headers: {
             auth: localStorage.getItem("auth")
-          }
-        }
-      );
-      //console.log(response.status)
+          }});
       if (response.status === 201) {
         delete this.state.submitError;
         this.props.checkApplicationExist()
         this.setState({ submitSuccess: true });
+      } else if (response.status === 409) {
+        this.setState({ submitError: "You have already created an application" });
       } else if (response.status === 500) {
-        this.setState({ submitError: "error: " + response.status });
-      } else {
-        this.setState({ submitError: "error: " + response.status });
+        this.setState({ submitError: "Server problem, try again"});
       }
     } else {
       this.setState({
@@ -176,6 +174,7 @@ class CreateApplication extends React.Component {
               )}
               {this.renderSelectedPeriod(this.state.workPeriod)}
               <SelectedDates
+                createAppState={this.state}
                 handler={this.handler}
                 parentHandler={this.handler.bind(this)}
                 selectedDates={this.state.selectedDates}
