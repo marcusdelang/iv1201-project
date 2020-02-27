@@ -27,7 +27,7 @@ async function createApplication(form, user) {
  * @param {Object} user
  * @return {Object[]} User applications
  */
-async function getApplicationsWithToken(user) {
+async function getApplications(user) {
   if (user.role === 2) {
     const application = await getApplicantApplication(user.person_id);
     logger.log(`Applicant ${user.username} fetched his/her application.`);
@@ -67,5 +67,8 @@ async function getRecruiterApplications() {
   return getAllApplications();
 }
 
-
-module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId };
+module.exports = { 
+  createApplication,
+  getApplications,
+  getApplicationWithId 
+};
