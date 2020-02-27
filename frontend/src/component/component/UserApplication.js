@@ -101,7 +101,8 @@ class UserApplication extends React.Component {
           <Row>
           <Col style={{ fontWeight: "bold" }}>Status: {this.state.status}</Col>
         </Row>
-          {this.props.recruiter && !this.state.updated && this.renderControls() || "Success, refresh to change statusa again"}
+          {this.props.recruiter && !this.state.updated && this.renderControls()}
+          {this.props.recruiter && this.state.updated && "Success, refresh to change status again"}
           {this.state.changeStatusError}
         </Card>
     );
