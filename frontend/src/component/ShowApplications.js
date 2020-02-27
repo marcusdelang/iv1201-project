@@ -25,7 +25,7 @@ class ShowApplication extends React.Component {
   }
 
   getApplications = async () => {
-    const response = await axios.get(`/api/application`, {
+    const response = await axios.get(`http://localhost:80/api/application`, {
       headers: { auth: localStorage.getItem("auth") }
     });
     const {} = response.data;
@@ -37,16 +37,16 @@ class ShowApplication extends React.Component {
   renderApplications = () => {
     const {applications} = this.state
     return applications.map((app)=>
-         <UserApplication key={app.person}
+         <UserApplication 
+            key={app.person.id}
             application={app}
-            user={app.person}
             recruiter
          />
     );
  }
 
   render() {
-    if (!this.props.appState.auth) {
+    if (!this.props.appState.auth || JSON.parse(this.props.appState.role) !== 2) {
       return <Redirect to="/home" />;
     }
     return (

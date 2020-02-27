@@ -29,7 +29,7 @@ class CreateApplication extends React.Component {
   //if the request is rejected resulting in a error message
   async componentDidMount() {
     try {
-      const response = await axios.get("/api/competence", {
+      const response = await axios.get("http://localhost:80/api/competence", {
         headers: { auth: localStorage.getItem("auth") }
       });
       this.setState({
@@ -128,7 +128,7 @@ class CreateApplication extends React.Component {
   submitApplication = async () => {
     if (this.state.workPeriod.length > 0) {
       const response = await axios.post(
-        "/api/application",
+        "http://localhost:80/api/application",
         {
           form: {
             availabilities: this.state.workPeriod,
