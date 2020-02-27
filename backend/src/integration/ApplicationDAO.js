@@ -101,7 +101,7 @@ async function buildApplication(personId) {
   values = await Promise.all(queries);
   let index = 0;
   for (const competence of competenceProfiles) {
-    competence.name = values[index].rows[0].name;
+    competence.name = values[index++].rows[0].name;
     delete competence.person;
     delete competence.competence_profile_id;
     delete competence.competence

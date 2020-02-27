@@ -7,6 +7,7 @@ const applicationController = require('../../controller/application');
 
 router.post('/', [authenticate, validate.post.application], async (req, res, next) => {
   try {
+    console.log(req.body.form);
     await applicationController.createApplication(req.body.form, req.auth.user);
   } catch (error) {
     return next(error);
