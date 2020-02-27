@@ -59,11 +59,9 @@ class SelectDates extends React.Component {
     const { startDay, endDay, startMonth, endMonth, dateError } = state;
     const checkDate = dateCheck(startDay, startMonth, endDay, endMonth)
     if(checkDate.check){
-      console.log("i am happening 1")
       props.add(this.styleDate(startDay), styleDate(endDay), styleDate(startMonth), styleDate(endMonth));
       delete this.dateError
     } else {
-      console.log("i am happening 2")
       this.setState({dateError: checkDate.dateError})
     }
   };
@@ -79,7 +77,6 @@ class SelectDates extends React.Component {
       };
       for (const element of this.props.createAppState.workPeriod){
         if(JSON.stringify(element) === JSON.stringify(newDate)){
-          console.log(JSON.stringify(element) === JSON.stringify(newDate))
           return {check: false, dateError: "You cannot add the same period"}
         }
       }
