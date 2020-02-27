@@ -68,27 +68,31 @@ async function exists(personId) {
 async function find(personId) {
   try {
     await transaction.start();
-    const values = await Promise.all([
-      transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
-      transaction.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
-      transaction.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId]),
-    ]);
-    const application = values[0].rows[0];
-    const competences = values[1].rows;
-    const availabilities = values[2].rows;
-    const applicationDetails = {
-      person: personId,
-      version: application.version,
-      status: application.status,
-      availabilities,
-      competences,
-    };
+    const applications = buildApplication(personId);
     await transaction.end();
-    return applicationDetails;
+    return applications;
   } catch (error) {
     await transaction.rollback();
     throw { code: 500, message: `Database error: ${error.message}` };
   }
+}
+
+async function buildApplication(personId){
+  const values = await Promise.all([
+    transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
+    transaction.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
+    transaction.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId]),
+  ]);
+  const application = values[0].rows[0];
+  const competences = values[1].rows;
+  const availabilities = values[2].rows;
+  return {
+    person: personId,
+    version: application.version,
+    status: application.status,
+    availabilities,
+    competences,
+  };
 }
 
 /**
@@ -98,7 +102,11 @@ async function find(personId) {
 async function getAll() {
   try {
     await transaction.start();
-    const applications = (await transaction.query(PREPARED_STATEMENT_GET_ALL_APPLICATIONS)).rows;
+    const applicationMetas = (await transaction.query(PREPARED_STATEMENT_GET_ALL_APPLICATIONS)).rows;
+    const applications = [];
+    for(meta of applicationMetas) {
+      applications.push(await buildApplication(meta.person))
+    }
     await transaction.end();
     return applications;
   } catch (error) {

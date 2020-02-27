@@ -22,7 +22,13 @@ class StoreUserError extends Error {
 class StoreApplicationError extends Error {
     constructor(error) {
         super(error.message);
-        if (this.message.includes('already exists')) {
+        if (this.message.includes('duplicate')) {
+            this.status = 400;
+            this.cause = 'invalid';
+            if(this.message.includes('from_date_to_date')){
+                this.field = 'date'
+            }
+        } else if (this.message.includes('already exists')) {
             this.status = 409;
             this.cause = 'duplicate';
         } else {

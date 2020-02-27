@@ -15,19 +15,20 @@ router.post('/', [authenticate, validate.post.application], async (req, res, nex
 });
 
 router.get('/', [authenticate, authorize], async (req, res, next) => {
-  let applications;
   try {
-    if (req.query && req.query.personId && req.auth.isRecruiter) {
+    let applications;
+    if (req.query.personId) {
+      if (!req.auth.isRecruiter) {
+        return res.status(403).send('Can\'t touch this');
+      }
       applications = await applicationController.getApplicationWithId(req.query.personId);
-    } else if (req.query && req.query.personId && !req.auth.isRecruiter) {
-      return res.status(403).send('Can\'t touch this');
     } else {
-      applications = await applicationController.getApplicationsWithToken(req.auth.user);
+      applications = await applicationController.getApplications(req.auth.user);
     }
+    res.status(200).json(applications);
   } catch (error) {
     return next(error);
   }
-  res.status(200).json(applications);
 });
 
 module.exports = router;
