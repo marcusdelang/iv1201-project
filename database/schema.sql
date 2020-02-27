@@ -33,7 +33,8 @@ CREATE TABLE Competence_profile (
     competence_profile_id SERIAL PRIMARY KEY,
     person INTEGER REFERENCES person,
     competence INTEGER REFERENCES competence,
-    years_of_experience NUMERIC(4, 2)
+    years_of_experience INTEGER,
+    UNIQUE (person, competence, years_of_experience)
 );
 
 
@@ -54,10 +55,12 @@ INSERT INTO Status (name) VALUES ('rejected');
 INSERT INTO Role (name) VALUES ('recruiter');
 INSERT INTO Role (name) VALUES ('applicant');
 
-INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('applicant', 'applicant', '12345678-4321', 'applicant@applicant.se', 'applicant', 2, 'applicant');
-INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('recruiter', 'recruiter', '12345678-1234', 'recruiter@recruiter.se', 'recruiter', 1, 'recruiter');
+INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('applicant1', 'applicant1', '12345678-4321', 'applicant1@applicant.se', 'applicant1', 2, 'applicant1');
+INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('applicant2', 'applicant2', '12345678-4322', 'applicant2@applicant.se', 'applicant2', 2, 'applicant2');
+INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('recruiter1', 'recruiter1', '12345678-1111', 'recruiter1@recruiter.se', 'recruiter1', 1, 'recruiter1');
+INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('recruiter2', 'recruiter2', '12345678-2222', 'recruiter2@recruiter.se', 'recruiter2', 1, 'recruiter2');
 
-INSERT INTO Competence (name) VALUES ('kassör');
-INSERT INTO Competence (name) VALUES ('bergochdalbanemekaniker');
-INSERT INTO Competence (name) VALUES ('dräktbärare');
+INSERT INTO Competence (name) VALUES ('Kassör');
+INSERT INTO Competence (name) VALUES ('Kock');
+INSERT INTO Competence (name) VALUES ('Säljare');
 
