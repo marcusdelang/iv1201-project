@@ -10,7 +10,8 @@ class UserApplication extends React.Component {
   constructor(props){
     super(props);
     this.state={
-      status: this.props.application.status
+      status: this.props.application.status,
+      updated: false
     }
   }
   renderCompetences() {
@@ -45,25 +46,22 @@ class UserApplication extends React.Component {
     const {status} = this.props.application;
     return(
       <Fragment>
-        <Row>
-          <Col style={{ fontWeight: "bold" }}>Status: {this.state.status}</Col>
-        </Row>
-        <Button variant="success" onClick={this.updateStatus("accepted")} >Accept</Button>
-        <Button variant="danger" onClick={this.updateStatus("rejected")} >Reject</Button>  
+        <Button variant="success" onClick={()=> {this.updateStatus("accepted")}} >Accept</Button>
+        <Button variant="danger" onClick={()=> {this.updateStatus("rejected")}} >Reject</Button>  
       </Fragment>
     );
   }
 
   updateStatus = async (status) => {
     const { version, person} = this.props.application;
-    const pers = JSON.parse(person)
-    const vers = JSON.parse(version)
     try{
-      await axios.put("/api/application",{pers, vers, status},{headers: {auth: localStorage.getItem('auth')}})
+      await axios.put("/api/application",{person:person.id, version, status},{headers: {auth: localStorage.getItem('auth')}})
       this.setState({status: status})
+      this.setState({updated: true})
       delete this.state.changeStatusError
     } catch(error){
-      const {status} = error.response.data
+      console.log(error)
+      const {status} = error.response
       if(status === 400){
         this.setState({changeStatusError: "try again incorrect information was sent"})
       }else if(status === 401){
@@ -80,7 +78,7 @@ class UserApplication extends React.Component {
   }
 
   render() {
-    const { name, surname, username, email, ssn } = this.props.application.person;
+    const { name, surname, email, ssn } = this.props.application.person;
     return (
         <Card style={{marginTop: "10px"}}>
           <Card.Body>
@@ -100,7 +98,10 @@ class UserApplication extends React.Component {
             </Row>
             {this.renderAvailabilities()}
           </Card.Body>
-          {this.props.recruiter && this.renderControls()}
+          <Row>
+          <Col style={{ fontWeight: "bold" }}>Status: {this.state.status}</Col>
+        </Row>
+          {this.props.recruiter && !this.state.updated && this.renderControls() || "Success, refresh to change statusa again"}
           {this.state.changeStatusError}
         </Card>
     );
