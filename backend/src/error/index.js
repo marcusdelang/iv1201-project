@@ -25,7 +25,7 @@ class StoreApplicationError extends Error {
         if (this.message.includes('duplicate')) {
             this.status = 400;
             this.cause = 'invalid';
-            if(this.message.includes('from_date_to_date')){
+            if (this.message.includes('from_date_to_date')) {
                 this.field = 'date'
             }
         } else if (this.message.includes('already exists')) {
@@ -34,7 +34,20 @@ class StoreApplicationError extends Error {
         } else if (this.message.includes('no competence')) {
             this.status = 400;
             this.cause = 'no competence';
-        }else {
+        } else {
+            this.status = 500;
+            this.cause = 'server';
+        }
+    }
+}
+
+class UpdateApplicationError extends Error {
+    constructor(error) {
+        super(error.message);
+        if (this.message.includes('bad version')) {
+            this.status = 409;
+            this.cause = 'bad version';
+        } else {
             this.status = 500;
             this.cause = 'server';
         }
@@ -74,6 +87,7 @@ class FindUserError extends Error {
 module.exports = {
     StoreUserError,
     StoreApplicationError,
+    UpdateApplicationError,
     AuthError,
     FindUserError
 }

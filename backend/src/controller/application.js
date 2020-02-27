@@ -1,7 +1,11 @@
-const { StoreApplicationError } = require('./../error');
+const { StoreApplicationError, UpdateApplicationError } = require('./../error');
 const logger = require('./../util/logger');
 const {
-  Application, exists: applicationExists, find: findApplication, getAll: getAllApplications,
+  Application,
+  exists: applicationExists,
+  find: findApplication,
+  getAll: getAllApplications,
+  updateStatus
 } = require('../model/Application');
 
 
@@ -13,12 +17,29 @@ const {
 async function createApplication(form, user) {
   try {
     if (await applicationExists(user.person_id)) {
-      throw {message: 'Application already exists for user ' + user.username };
+      throw { message: 'Application already exists for user ' + user.username };
     }
     await new Application(form, user).store();
     logger.log(`Stored application for user ${user.username}`);
   } catch (error) {
     throw new StoreApplicationError(error);
+  }
+}
+
+/**
+ * Updates the status of an application.
+ * @param {Object} data 
+ * @param {Object} user 
+ */
+async function updateApplicationStatus(data, user) {
+  try {
+    if (!await applicationExists(data.person)){
+      throw {message: 'no application'};
+    }
+    await updateStatus(data);
+    logger.log(`Application for user ${data.person} updated by ${user.username}`);
+  } catch (error) {
+    throw new UpdateApplicationError(error);
   }
 }
 
@@ -67,8 +88,9 @@ async function getRecruiterApplications() {
   return getAllApplications();
 }
 
-module.exports = { 
+module.exports = {
   createApplication,
+  updateApplicationStatus,
   getApplications,
-  getApplicationWithId 
+  getApplicationWithId
 };
