@@ -3,10 +3,11 @@ const { Transaction } = require('./dbh');
 const PREPARED_STATEMENT_STORE_APPLICATION = 'INSERT INTO Application (version, person, status) VALUES ($1, $2, $3);';
 const PREPARED_STATEMENT_STORE_AVAILABILITY = 'INSERT INTO Availability (person, from_date, to_date) VALUES ($1, $2, $3);';
 const PREPARED_STATEMENT_GET_COMPETENCE_ID = 'SELECT competence_id FROM Competence WHERE name = $1;';
+const PREPARED_STATEMENT_GET_COMPETENCE_NAME = 'SELECT name FROM Competence WHERE competence_id = $1;';
 const PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE = 'INSERT INTO Competence_profile (person, competence, years_of_experience) VALUES ($1, $2, $3);';
 const PREPARED_STATEMENT_FIND_PERSON = 'SELECT * FROM Person WHERE person_id = $1;';
 const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE person = $1;';
-const PREPARED_STATEMENT_FIND_COMPETENCES = 'SELECT * FROM Competence_profile WHERE person = $1;';
+const PREPARED_STATEMENT_FIND_COMPETENCE_PROFILES = 'SELECT * FROM Competence_profile WHERE person = $1;';
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person = $1;';
 const PREPARED_STATEMENT_GET_ALL_APPLICATIONS = 'SELECT * FROM Application;';
 
@@ -26,13 +27,16 @@ async function store(application) {
       [version, person.id, status]);
 
     const queries = [];
-    availabilities.forEach((availability) => {
+    for(availability of availabilities){
       queries.push(transaction.query(PREPARED_STATEMENT_STORE_AVAILABILITY,
         [person.id, availability.from, availability.to]));
-    });
+    }
     await Promise.all(queries);
     for (const competence of competences) {
       const res = await transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name]);
+      if(res.rows.length === 0){
+        throw {message: 'no competence'}
+      }
       await transaction.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE,
         [person.id, res.rows[0].competence_id, competence.years_of_experience]);
     }
@@ -79,17 +83,35 @@ async function find(personId) {
 }
 
 async function buildApplication(personId){
-  const values = await Promise.all([
+  let values = await Promise.all([
     transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
-    transaction.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
+    transaction.query(PREPARED_STATEMENT_FIND_COMPETENCE_PROFILES, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_PERSON, [personId])
   ]);
   const application = values[0].rows[0];
-  const competences = values[1].rows;
+  const competenceProfiles = values[1].rows;
   const availabilities = values[2].rows;
   const person = values[3].rows[0];
+  const queries = [];
+  for(const competence of competenceProfiles){
+    queries.push(transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_NAME, [competence.competence]))
+  }
+  values = await Promise.all(queries);
+  let index = 0;
+  for(const competence of competenceProfiles){
+    competence.name = values[index].rows[0].name;
+    delete competence.person;
+    delete competence.competence_profile_id;
+    delete competence.competence
+  }
+  for(const availability of availabilities){
+    delete availability.person;
+    delete availability.availability_id;
+  }
   return {
+    version: application.version,
+    status: application.status,
     person: {
       id: person.person_id,
       name: person.name,
@@ -97,10 +119,8 @@ async function buildApplication(personId){
       ssn: person.ssn,
       email: person.email
     },
-    version: application.version,
-    status: application.status,
     availabilities,
-    competences,
+    competences: competenceProfiles,
   };
 }
 
@@ -115,6 +135,7 @@ async function getAll() {
     const applications = [];
     for(meta of applicationMetas) {
       applications.push(await buildApplication(meta.person))
+      delete meta.person;
     }
     await transaction.end();
     return applications;
