@@ -46,7 +46,7 @@ class ShowApplication extends React.Component {
  }
 
   render() {
-    if (!this.props.appState.auth || JSON.parse(this.props.appState.role) !== 2) {
+    if (!this.props.appState.auth || !(JSON.parse(this.props.appState.role) === 2)) {
       return <Redirect to="/home" />;
     }
     return (

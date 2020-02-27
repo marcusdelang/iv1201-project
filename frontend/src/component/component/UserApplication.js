@@ -89,7 +89,6 @@ class UserApplication extends React.Component {
               <Col>SSN: {ssn}</Col>
             </Row>
             <Row>
-              <Col>Username: {username}</Col>
               <Col>Email: {email}</Col>
             </Row>
             <Row>
