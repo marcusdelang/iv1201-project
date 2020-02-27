@@ -19,8 +19,9 @@ CREATE TABLE Person (
 CREATE TABLE Availability (
     availability_id SERIAL PRIMARY KEY,
     person INTEGER REFERENCES person,
-    from_date DATE,
-    to_date DATE
+    from_date CHAR(10),
+    to_date CHAR(10),
+    UNIQUE (person, from_date, to_date)
 );
 
 CREATE TABLE Competence (
