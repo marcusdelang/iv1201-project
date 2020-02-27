@@ -14,7 +14,7 @@ class Login extends React.Component {
     super(props);
     this.state = {
       username: "",
-      password: "",
+      password: ""
     };
   }
   handler = async e => {
@@ -26,21 +26,30 @@ class Login extends React.Component {
 
   login = async e => {
     e.preventDefault();
-    console.log(this.state);
     if (this.state.username !== "" && this.state.password !== "") {
-      const response = await axios.post("/api/login", {
-        username: this.state.username,
-        password: this.state.password
-      });
-      this.setState({ status: response.status });
-      if (response.status === 401) {
-        //   console.log(response.statusText)
-      } else if (response.status === 200) {
-        this.props.changeAppState("auth", response.data.auth);
-        this.props.changeAppState("user", response.data.user);
+      try {
+        const response = await axios.post("http://localhost:80/api/login", {
+          username: this.state.username,
+          password: this.state.password
+        });
+        const { changeAppState, checkApplicationExist } = this.props;
+        changeAppState("auth", response.data.auth);
+        changeAppState("user", response.data.user);
+        const user = JSON.parse(response.data.user);
+        changeAppState("role", user.role);
+        checkApplicationExist();
+        delete this.state.submitError;
+      } catch (error) {
+        const { status, data } = error.response;
+        console.log(data)
+        if (status === 401 && data.cause === "") {
+          this.setState({ submitError: "Incorrect password" });
+        } else if (status === 401 && data.cause === "no user") {
+          this.setState({ submitError: "User does not exist" });
+        } else if (status === 500) {
+          this.setState({ submitError: "Server problem, please try again" });
+        }
       }
-    } else {
-      console.log("invalid input");
     }
   };
   render() {
@@ -77,6 +86,7 @@ class Login extends React.Component {
               <Button variant="primary" type="submit">
                 Login
               </Button>
+              <p>{this.state.submitError}</p>
             </Form>
           </Card.Body>
         </Card>

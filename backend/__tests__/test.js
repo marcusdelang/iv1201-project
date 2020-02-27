@@ -116,6 +116,22 @@ describe('Endpoint: /api', () => {
         return done(error);
       }
     });
+
+    test('POST => 401 It should 401 if wrong password', async (done) => {
+      try {
+        const res = await axios.post(`http://localhost:${port}/api/login`, {
+          username: 'testapp',
+          password: 'wrong',
+        });
+        return done(new Error('Should throw 401'))
+      } catch (error) {
+        expect(error.response.status).toEqual(401);
+        expect(typeof(error.response.data)).toEqual('object');
+        expect(error.response.data.cause).toEqual('invalid');
+        expect(error.response.data.field).toEqual('credentials');
+        return done();
+      }
+    });
   });
 
   describe('Endpoint: /api/competence', () => {

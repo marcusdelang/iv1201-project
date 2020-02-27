@@ -1,3 +1,4 @@
+const { StoreApplicationError } = require('./../error');
 const logger = require('./../util/logger');
 const {
   Application, exists: applicationExists, find: findApplication, getAll: getAllApplications,
@@ -10,14 +11,14 @@ const {
  * @param {Object} user
  */
 async function createApplication(form, user) {
-  if (await applicationExists(user.person_id)) {
-    throw { code: 409, message: 'Application already exists' };
-  }
   try {
+    if (await applicationExists(user.person_id)) {
+      throw {message: 'Application already exists for user ' + user.username };
+    }
     await new Application(form, user).store();
     logger.log(`Stored application for user ${user.username}`);
   } catch (error) {
-    throw { code: error.code, message: `Database Error ${error}` };
+    throw new StoreApplicationError(error);
   }
 }
 
@@ -26,7 +27,7 @@ async function createApplication(form, user) {
  * @param {Object} user
  * @return {Object[]} User applications
  */
-async function getApplicationsWithToken(user) {
+async function getApplications(user) {
   if (user.role === 2) {
     const application = await getApplicantApplication(user.person_id);
     logger.log(`Applicant ${user.username} fetched his/her application.`);
@@ -66,5 +67,8 @@ async function getRecruiterApplications() {
   return getAllApplications();
 }
 
-
-module.exports = { createApplication, getApplicationsWithToken, getApplicationWithId };
+module.exports = { 
+  createApplication,
+  getApplications,
+  getApplicationWithId 
+};
