@@ -21,8 +21,8 @@ class Signup extends React.Component {
     };
   }
 
-  handleChange = async e => {
-    const { id, value } = await e.target;
+  handleChange = async event => {
+    const { id, value } = await event.target;
     this.setState({
       [id]: value
     });
@@ -48,7 +48,7 @@ class Signup extends React.Component {
     } else {
       const { name, surname, ssn, email, username, password } = this.state;
       try{
-        const response = await axios.post("http://localhost:80/api/user", {
+        const response = await axios.post("/api/user", {
           user: {
             name: name,
             surname: surname,

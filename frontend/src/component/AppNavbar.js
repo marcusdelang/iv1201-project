@@ -31,16 +31,7 @@ class AppNavbar extends React.Component {
       </Fragment>
     );
   }
-  /*
-  printLocalStorage(){
-    console.log("I am happening")
-   let keys = Object.keys(localStorage),
-    i = keys.length;
-    while ( i-- ) {
-      console.log(keys[i])
-    }
-  }
-  */
+
 
   renderLoggedInUser() {
     const { applicationExists } = this.props.appState;

@@ -28,7 +28,7 @@ class Login extends React.Component {
     e.preventDefault();
     if (this.state.username !== "" && this.state.password !== "") {
       try {
-        const response = await axios.post("http://localhost:80/api/login", {
+        const response = await axios.post("/api/login", {
           username: this.state.username,
           password: this.state.password
         });
@@ -41,8 +41,7 @@ class Login extends React.Component {
         delete this.state.submitError;
       } catch (error) {
         const { status, data } = error.response;
-        console.log(data)
-        if (status === 401 && data.cause === "") {
+        if (status === 401 && data.cause === "invalid") {
           this.setState({ submitError: "Incorrect password" });
         } else if (status === 401 && data.cause === "no user") {
           this.setState({ submitError: "User does not exist" });
