@@ -60,7 +60,8 @@ INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES 
 INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('recruiter1', 'recruiter1', '12345678-1111', 'recruiter1@recruiter.se', 'recruiter1', 1, 'recruiter1');
 INSERT INTO Person (name, surname, ssn, email, password, role, username) VALUES ('recruiter2', 'recruiter2', '12345678-2222', 'recruiter2@recruiter.se', 'recruiter2', 1, 'recruiter2');
 
-INSERT INTO Competence (name) VALUES ('Kassör');
-INSERT INTO Competence (name) VALUES ('Kock');
-INSERT INTO Competence (name) VALUES ('Säljare');
+INSERT INTO Competence (name) VALUES ('kassör');
+INSERT INTO Competence (name) VALUES ('kock');
+INSERT INTO Competence (name) VALUES ('säljare');
+INSERT INTO Competence (name) VALUES ('borgmästare');
 
