@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import ParticlesBg from 'particles-bg'
 import {Switch} from 'react-router-dom';

@@ -1,8 +1,6 @@
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { Redirect } from "react-router-dom";
-import FormControl from "react-bootstrap/FormControl";
-import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import axios from "axios";

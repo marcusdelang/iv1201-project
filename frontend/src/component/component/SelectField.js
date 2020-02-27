@@ -1,9 +1,6 @@
 import React, { Fragment } from "react";
 import Form from "react-bootstrap/Form";
-import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 
 import styles from "../../resources/styles/standardLayoutStyles";
 class SelectField extends React.Component {

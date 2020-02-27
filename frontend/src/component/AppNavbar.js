@@ -1,10 +1,7 @@
-import React, { Fragment, useReducer } from "react";
+import React, { Fragment } from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Button from "react-bootstrap/Button";
-import Spinner from "react-bootstrap/Spinner";
-
-import styles from "../resources/styles/signup.js";
 
 class AppNavbar extends React.Component {
   constructor(props) {

@@ -1,13 +1,8 @@
 import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
-import Button from "react-bootstrap/Button";
 
-import Card from "react-bootstrap/Card";
-import Modal from "react-bootstrap/Modal";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
-import UserApplication from './component/UserApplication'
+import UserApplication from './component/UserApplication';
 
 
 class ShowApplication extends React.Component {

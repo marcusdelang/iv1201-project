@@ -4,7 +4,6 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import FormControl from "react-bootstrap/FormControl";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 
