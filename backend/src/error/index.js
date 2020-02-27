@@ -31,7 +31,10 @@ class StoreApplicationError extends Error {
         } else if (this.message.includes('already exists')) {
             this.status = 409;
             this.cause = 'duplicate';
-        } else {
+        } else if (this.message.includes('no competence')) {
+            this.status = 400;
+            this.cause = 'no competence';
+        }else {
             this.status = 500;
             this.cause = 'server';
         }
