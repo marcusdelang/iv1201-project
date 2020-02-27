@@ -32,7 +32,6 @@ class Signup extends React.Component {
     return /^-{0,1}\d+$/.test(value);
   }
   validateSSN(ssn) {
-    console.log(ssn.length, this.isNumeric(ssn))
     if (!this.isNumeric(ssn) || ssn.length != 10) {
       return { numeric: false, error: "SSN can only be a 10 digit number" };
     } else {
@@ -47,7 +46,6 @@ class Signup extends React.Component {
       this.setState({ submitError: error });
       e.stopPropagation();
     } else {
-      console.log(this.state);
       const { name, surname, ssn, email, username, password } = this.state;
       try{
         const response = await axios.post("http://localhost:80/api/user", {
@@ -63,9 +61,9 @@ class Signup extends React.Component {
         this.setState({ status: response.status });
         delete this.state.submitError;
       } catch(error){
-        const {status, response} = error
+        const {status, data} = error.response
         if(status === 409){
-          this.setState({submitError: response.data.field + " already exists"})
+          this.setState({submitError: data.field + " already exists"})
         } else if(status === 500){
           this.setState({submitError: "Server problem, try again"})
         }

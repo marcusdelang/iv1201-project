@@ -36,7 +36,6 @@ class ShowApplication extends React.Component{
                application: application
            })
        }
-       console.log("state",this.state)
     }
 
     renderApplication = () => {

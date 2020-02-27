@@ -19,7 +19,6 @@ class ShowApplication extends React.Component {
   }
 
   componentDidMount() {
-    console.log("hello");
     this.getApplications();
   }
 
@@ -28,11 +27,9 @@ class ShowApplication extends React.Component {
       headers: { auth: localStorage.getItem("auth") }
     });
     const {} = response.data;
-    console.log(response.data);
     this.setState({
       applications: response.data
     });
-    console.log(this.state);
   };
 
   renderApplication = () => {
