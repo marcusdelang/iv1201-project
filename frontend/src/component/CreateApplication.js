@@ -6,6 +6,7 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
+import { toast } from 'react-toastify';
 
 import SelectField from "./component/SelectField";
 import SelectedDates from "./component/SelectDates";
@@ -141,6 +142,7 @@ class CreateApplication extends React.Component {
         }
       );
       if (response.status === 201) {
+        toast.success('Application created!');
         delete this.state.submitError;
         this.props.checkApplicationExist();
         this.setState({ submitSuccess: true });

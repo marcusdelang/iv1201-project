@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import ParticlesBg from 'particles-bg'
 import {Switch} from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 
 import Home from './Home';
@@ -14,7 +13,12 @@ import ShowApplications from './ShowApplications'
 import ShowApplication from './ShowApplication'
 import axios from 'axios';
 
-toast.configure()
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+  // Call it once in your app. At the root of your app is the best place
+  toast.configure();
+
 
 class App extends React.Component {
   constructor(props){
