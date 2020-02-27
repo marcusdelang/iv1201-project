@@ -27,20 +27,16 @@ class ShowApplication extends React.Component{
     getApplication = async () =>{
        const response = await axios.get(`/api/application`,{headers: {auth: localStorage.getItem('auth')}})
        if(response.data.length > 0){
-           const {availabilities, version, competences, person } = response.data[0]
            const application = response.data;
            this.setState({
-               availabilities: availabilities,
-               version: version,
-               competences: competences,
-               application: application,
-               user: person
+            application: application,
            })
        }
     }
 
     renderApplication = () => {
-       const {application, user} = this.state
+       
+       const {application} = this.state
        return application.map((app)=>
             <UserApplication 
                key={app.person.id}
