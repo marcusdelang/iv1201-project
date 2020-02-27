@@ -13,9 +13,15 @@ class Application {
     this.version = form.version || 1;
     this.status = form.status || 'unhandled';
     const { availabilities, competences } = form;
-    this.person = user.person_id;
     this.availabilities = availabilities;
     this.competences = competences;
+    this.person = {
+      id: user.person_id,
+      name: user.name,
+      surname: user.surname,
+      ssn: user.ssn,
+      email: user.email
+    }
 
     this.store = async () => {
       await DAO.store(this);

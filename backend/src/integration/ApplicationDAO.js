@@ -4,6 +4,7 @@ const PREPARED_STATEMENT_STORE_APPLICATION = 'INSERT INTO Application (version, 
 const PREPARED_STATEMENT_STORE_AVAILABILITY = 'INSERT INTO Availability (person, from_date, to_date) VALUES ($1, $2, $3);';
 const PREPARED_STATEMENT_GET_COMPETENCE_ID = 'SELECT competence_id FROM Competence WHERE name = $1;';
 const PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE = 'INSERT INTO Competence_profile (person, competence, years_of_experience) VALUES ($1, $2, $3);';
+const PREPARED_STATEMENT_FIND_PERSON = 'SELECT * FROM Person WHERE person_id = $1;';
 const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE person = $1;';
 const PREPARED_STATEMENT_FIND_COMPETENCES = 'SELECT * FROM Competence_profile WHERE person = $1;';
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person = $1;';
@@ -22,18 +23,18 @@ async function store(application) {
       person, availabilities, competences, status, version,
     } = application;
     await transaction.query(PREPARED_STATEMENT_STORE_APPLICATION,
-      [version, person, status]);
+      [version, person.id, status]);
 
     const queries = [];
     availabilities.forEach((availability) => {
       queries.push(transaction.query(PREPARED_STATEMENT_STORE_AVAILABILITY,
-        [person, availability.from, availability.to]));
+        [person.id, availability.from, availability.to]));
     });
     await Promise.all(queries);
     for (const competence of competences) {
       const res = await transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name]);
       await transaction.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE,
-        [person, res.rows[0].competence_id, competence.years_of_experience]);
+        [person.id, res.rows[0].competence_id, competence.years_of_experience]);
     }
     await transaction.end();
   } catch (error) {
@@ -82,12 +83,20 @@ async function buildApplication(personId){
     transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_COMPETENCES, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId]),
+    transaction.query(PREPARED_STATEMENT_FIND_PERSON, [personId])
   ]);
   const application = values[0].rows[0];
   const competences = values[1].rows;
   const availabilities = values[2].rows;
+  const person = values[3].rows[0];
   return {
-    person: personId,
+    person: {
+      id: person.person_id,
+      name: person.name,
+      surname: person.surname,
+      ssn: person.ssn,
+      email: person.email
+    },
     version: application.version,
     status: application.status,
     availabilities,
