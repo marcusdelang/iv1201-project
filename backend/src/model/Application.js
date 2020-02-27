@@ -55,9 +55,14 @@ async function getAll() {
   return DAO.getAll();
 }
 
+async function updateStatus(data){
+  return DAO.update(data);
+}
+
 module.exports = {
   Application,
   exists,
   find,
   getAll,
+  updateStatus
 };

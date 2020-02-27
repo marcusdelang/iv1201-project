@@ -31,4 +31,16 @@ router.get('/', [authenticate, authorize], async (req, res, next) => {
   }
 });
 
+router.put('/', [authenticate, authorize], async (req, res, next) => {
+  try {
+    if (!req.auth.isRecruiter) {
+      // kan ta bort?
+      return res.status(403).send('Can\'t touch this');
+    }
+    await applicationController.updateApplicationStatus(req.body, req.auth.user);
+  } catch (error) {
+    return next(error);
+  }
+  res.status(200).send('Application updated');
+});
 module.exports = router;

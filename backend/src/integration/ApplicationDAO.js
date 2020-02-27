@@ -10,6 +10,7 @@ const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE per
 const PREPARED_STATEMENT_FIND_COMPETENCE_PROFILES = 'SELECT * FROM Competence_profile WHERE person = $1;';
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person = $1;';
 const PREPARED_STATEMENT_GET_ALL_APPLICATIONS = 'SELECT * FROM Application;';
+const PREPARED_STATEMENT_UPDATE_STATUS = 'UPDATE Application SET status = $1, version = $2 WHERE person = $3;'
 
 const transaction = new Transaction();
 
@@ -27,15 +28,15 @@ async function store(application) {
       [version, person.id, status]);
 
     const queries = [];
-    for(availability of availabilities){
+    for (availability of availabilities) {
       queries.push(transaction.query(PREPARED_STATEMENT_STORE_AVAILABILITY,
         [person.id, availability.from, availability.to]));
     }
     await Promise.all(queries);
     for (const competence of competences) {
       const res = await transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name]);
-      if(res.rows.length === 0){
-        throw {message: 'no competence'}
+      if (res.rows.length === 0) {
+        throw { message: 'no competence' }
       }
       await transaction.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE,
         [person.id, res.rows[0].competence_id, competence.years_of_experience]);
@@ -82,7 +83,7 @@ async function find(personId) {
   }
 }
 
-async function buildApplication(personId){
+async function buildApplication(personId) {
   let values = await Promise.all([
     transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_COMPETENCE_PROFILES, [personId]),
@@ -94,18 +95,18 @@ async function buildApplication(personId){
   const availabilities = values[2].rows;
   const person = values[3].rows[0];
   const queries = [];
-  for(const competence of competenceProfiles){
+  for (const competence of competenceProfiles) {
     queries.push(transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_NAME, [competence.competence]))
   }
   values = await Promise.all(queries);
   let index = 0;
-  for(const competence of competenceProfiles){
+  for (const competence of competenceProfiles) {
     competence.name = values[index].rows[0].name;
     delete competence.person;
     delete competence.competence_profile_id;
     delete competence.competence
   }
-  for(const availability of availabilities){
+  for (const availability of availabilities) {
     delete availability.person;
     delete availability.availability_id;
   }
@@ -133,7 +134,7 @@ async function getAll() {
     await transaction.start();
     const applicationMetas = (await transaction.query(PREPARED_STATEMENT_GET_ALL_APPLICATIONS)).rows;
     const applications = [];
-    for(meta of applicationMetas) {
+    for (meta of applicationMetas) {
       applications.push(await buildApplication(meta.person))
       delete meta.person;
     }
@@ -145,9 +146,25 @@ async function getAll() {
   }
 }
 
+async function update(data) {
+  try {
+    await transaction.start();
+    const application = (await transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [data.person])).rows[0];
+    if(application.version !== data.version){
+      throw {message: 'bad version'}
+    }
+    await transaction.query(PREPARED_STATEMENT_UPDATE_STATUS, [data.status, data.version + 1, data.person]);
+    await transaction.end();
+  } catch (error) {
+    await transaction.rollback();
+    throw {message: `Database error: ${error.message}`}
+  }
+}
+
 module.exports = {
   store,
   exists,
   find,
   getAll,
+  update
 };
