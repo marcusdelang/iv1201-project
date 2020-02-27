@@ -3,6 +3,8 @@ import React, { Fragment } from "react";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import Button from "react-bootstrap/Button"
+import Axios from "axios";
 
 class UserApplication extends React.Component {
 
@@ -22,24 +24,38 @@ class UserApplication extends React.Component {
 
   renderAvailabilities() {
     const { availabilities } = this.props.application;
-    return availabilities.map((avail, index) => (
-      <Card key={avail.availability_id}>
+    return availabilities.map((availability, index) => (
+      <Card key={availability.availability_id}>
         <Card.Body>
           <Row>
-            <Col>From: {avail.from_date}</Col>
-            <Col>To: {avail.to_date}</Col>
+            <Col>From: {availability.from_date}</Col>
+            <Col>To: {availability.to_date}</Col>
           </Row>
         </Card.Body>
       </Card>
     ));
   }
+
+  renderControls = () => {
+    return(
+      <Fragment>
+        <Row>
+          <Col style={{ fontWeight: "bold" }}>Status: {this.props.application.status}</Col>
+        </Row>
+        <Button variant="success">Accept</Button>
+        <Button variant="danger">Reject</Button>  
+      </Fragment>
+    );
+  }
+
+  updateStatus = () => {
+    
+  }
+
   render() {
-    console.log(this.props);
     const { name, surname, ssn, email, username } = this.props.user;
     return (
-      <Fragment>
-        <h1 style={{ color: "white" }}>Application</h1>
-        <Card>
+        <Card style={{marginTop: "10px"}}>
           <Card.Body>
             <Row>
               <Col>Applicant: {name + " " + surname}</Col>
@@ -58,8 +74,8 @@ class UserApplication extends React.Component {
             </Row>
             {this.renderAvailabilities()}
           </Card.Body>
+          {this.renderControls()}
         </Card>
-      </Fragment>
     );
   }
 }

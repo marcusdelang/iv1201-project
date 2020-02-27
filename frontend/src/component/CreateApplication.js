@@ -25,22 +25,37 @@ class CreateApplication extends React.Component {
     };
   }
 
+  //Fetches all comptences when the component mounts, server sends 401 
+  //if the request is rejected resulting in a error message
   async componentDidMount() {
-    try{
-      const response = await axios.get("http://localhost:80/api/competence", {
+    try {
+      const response = await axios.get("/api/competence", {
         headers: { auth: localStorage.getItem("auth") }
       });
       this.setState({
         workOptions: [...this.state.workOptions, ...response.data]
       });
-      delete this.state.competenceError
-    } catch (error){
-      const {status} = error.response.data
-      if(status === 401){
-        this.setState({competenceError: "You are not logged in, relog"})
+      delete this.state.competenceError;
+    } catch (error) {
+      const { status } = error.response.data;
+      if (status === 401) {
+        this.setState({ competenceError: "You are not logged in, relog" });
       }
     }
   }
+  
+  renderSelectedPeriod = selected => {
+    return selected.map((entry, index) => (
+      <Card key={index}>
+        <Card.Body>
+          <Row>
+            <Col>{"Start: " + entry.from}</Col>
+            <Col>{"End: " + entry.to}</Col>
+          </Row>
+        </Card.Body>
+      </Card>
+    ));
+  };
 
   remove(element, array) {
     const index = array.indexOf(element);
@@ -48,6 +63,9 @@ class CreateApplication extends React.Component {
     return array;
   }
 
+  //Adds a comptence type and a number of years to an array 
+  //and removes the comptence type from the options array from
+  //which it was picked from
   addSelected = (type, years, store, options, error) => {
     if (this.state[type] !== "" && this.state[years] !== "") {
       this.setState({
@@ -65,12 +83,13 @@ class CreateApplication extends React.Component {
     }
   };
 
+  //Handles a change in state, if a string contains only numbers it will store it as a number
+  //otherwise only the value will be stored 
   handler = async e => {
     const { id, value } = await e.target;
     this.setState({
       [id]: /^-{0,1}\d+$/.test(value) ? parseInt(value) : value
     });
-    console.log(this.state);
   };
 
   renderSelected = selected => {
@@ -85,19 +104,7 @@ class CreateApplication extends React.Component {
       </Card>
     ));
   };
-
-  renderSelectedPeriod = selected => {
-    return selected.map((entry, index) => (
-      <Card key={index}>
-        <Card.Body>
-          <Row>
-            <Col>{"Start: " + entry.from}</Col>
-            <Col>{"End: " + entry.to}</Col>
-          </Row>
-        </Card.Body>
-      </Card>
-    ));
-  };
+  
   renderOptions = (options, id) => {
     return options.map((option, index) => (
       <option id={id + index} key={index}>
@@ -105,36 +112,45 @@ class CreateApplication extends React.Component {
       </option>
     ));
   };
-
+  
   addWorkPeriod(startDay, endDay, startMonth, endMonth) {
     this.setState({
       workPeriod: [
-        ...this.state.workPeriod,{
+        ...this.state.workPeriod,
+        {
           from: "2020-" + startMonth + "-" + startDay,
           to: "2020-" + endMonth + "-" + endDay
-        }] 
-      });
+        }
+      ]
+    });
   }
 
   submitApplication = async () => {
     if (this.state.workPeriod.length > 0) {
       const response = await axios.post(
-        "http://localhost:80/api/application",{
+        "/api/application",
+        {
           form: {
             availabilities: this.state.workPeriod,
             competences: this.state.storedWorkOptions
-          }},{
+          }
+        },
+        {
           headers: {
             auth: localStorage.getItem("auth")
-          }});
+          }
+        }
+      );
       if (response.status === 201) {
         delete this.state.submitError;
-        this.props.checkApplicationExist()
+        this.props.checkApplicationExist();
         this.setState({ submitSuccess: true });
       } else if (response.status === 409) {
-        this.setState({ submitError: "You have already created an application" });
+        this.setState({
+          submitError: "You have already created an application"
+        });
       } else if (response.status === 500) {
-        this.setState({ submitError: "Server problem, try again"});
+        this.setState({ submitError: "Server problem, try again" });
       }
     } else {
       this.setState({
@@ -151,24 +167,27 @@ class CreateApplication extends React.Component {
             <Form>
               {this.renderSelected(this.state.storedWorkOptions)}
               {this.state.workOptions.length > 0 ? (
-                <SelectField
-                  fieldTitles={["Work Experience", "Years"]}
-                  buttonName="Add"
-                  controlId={["workExp", "workExpYears"]}
-                  handler={this.handler.bind(this)}
-                  options={[this.state.workOptions, this.state.years]}
-                  renderOptions={this.renderOptions}
-                  addSelected={() =>
-                    this.addSelected(
-                      "workExp",
-                      "workExpYears",
-                      "storedWorkOptions",
-                      "workOptions",
-                      "workExpError"
-                    )
-                  }
-                  errors={[this.state.workExpError]}
-                />
+                <Fragment>
+                  <SelectField
+                    fieldTitles={["Work Experience", "Years"]}
+                    buttonName="Add"
+                    controlId={["workExp", "workExpYears"]}
+                    handler={this.handler.bind(this)}
+                    options={[this.state.workOptions, this.state.years]}
+                    renderOptions={this.renderOptions}
+                    addSelected={() =>
+                      this.addSelected(
+                        "workExp",
+                        "workExpYears",
+                        "storedWorkOptions",
+                        "workOptions",
+                        "workExpError"
+                      )
+                    }
+                    errors={[this.state.workExpError]}
+                  />
+                  {this.state.competenceError}
+                </Fragment>
               ) : (
                 ""
               )}
@@ -191,7 +210,6 @@ class CreateApplication extends React.Component {
                   Apply
                 </Button>
               </Form.Row>
-              {console.log(this.state.submitError)}
               {this.state.submitError}
             </Form>
           </Card.Body>
@@ -201,7 +219,7 @@ class CreateApplication extends React.Component {
   };
 
   render() {
-    const {auth, applicationExists} = this.props.appState
+    const { auth, applicationExists } = this.props.appState;
     if (!auth || applicationExists) {
       return <Redirect to="/home" />;
     } else if (this.state.submitSuccess) {
