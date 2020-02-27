@@ -74,7 +74,7 @@ class UserApplication extends React.Component {
             </Row>
             {this.renderAvailabilities()}
           </Card.Body>
-          {this.renderControls()}
+          {this.props.recruiter ? this.renderControls() :""}
         </Card>
     );
   }
