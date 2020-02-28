@@ -14,8 +14,6 @@ import axios from "axios";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// Call it once in your app. At the root of your app is the best place
 toast.configure();
 
 class App extends React.Component {
@@ -28,8 +26,6 @@ class App extends React.Component {
       applicationExists: JSON.parse(localStorage.getItem("applicationExists"))
     };
   }
-
-  logout = () => {};
 
   changeAppState = (name, value) => {
     this.setState({
@@ -45,8 +41,9 @@ class App extends React.Component {
     });
   };
 
+  //Checks if the user has made an application
   checkApplicationExist = async () => {
-    const response = await axios.get(`/api/application`, {
+    const response = await axios.get(`http://localhost:80/api/application`, {
       headers: { auth: localStorage.getItem("auth") }
     });
     const applicationsExists = response.data.length > 0 ? true : false;

@@ -25,11 +25,9 @@ class CreateApplication extends React.Component {
     };
   }
 
-  //Fetches all comptences when the component mounts, server sends 401
-  //if the request is rejected resulting in a error message
   async componentDidMount() {
     try {
-      const response = await axios.get("/api/competence", {
+      const response = await axios.get("http://localhost:80/api/competence", {
         headers: { auth: localStorage.getItem("auth") }
       });
       this.setState({
@@ -111,7 +109,7 @@ class CreateApplication extends React.Component {
     if (this.state.workPeriod.length > 0) {
       try {
         await axios.post(
-          "/api/application",
+          "http://localhost:80/api/application",
           {
             form: {
               availabilities: this.state.workPeriod,
@@ -177,7 +175,7 @@ class CreateApplication extends React.Component {
                     }
                     errors={[workExpError]}
                   />
-                  {competenceError}
+                  <p style={styles.error}>{competenceError}</p>
                 </Fragment>
               ) : (
                 ""
@@ -194,7 +192,7 @@ class CreateApplication extends React.Component {
                   Apply
                 </Button>
               </Form.Row>
-              {submitError}
+             <p style={styles.error}>{submitError}</p>
             </Form>
           </Card.Body>
         </Card>

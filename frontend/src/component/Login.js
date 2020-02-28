@@ -21,7 +21,7 @@ class Login extends React.Component {
     e.preventDefault();
     if (this.state.username !== "" && this.state.password !== "") {
       try {
-        const response = await axios.post("/api/login", {
+        const response = await axios.post("http://localhost:80/api/login", {
           username: this.state.username,
           password: this.state.password
         });
@@ -81,7 +81,7 @@ class Login extends React.Component {
               <Button variant="primary" type="submit">
                 Login
               </Button>
-              <p>{this.state.submitError}</p>
+              <p style={styles.error}>{this.state.submitError}</p>
             </Form>
           </Card.Body>
         </Card>

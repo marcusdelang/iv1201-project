@@ -2,7 +2,8 @@ import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
-import UserApplication from "./innerComponent/UserApplication";
+import UserApplication from "./innerComponent/Application";
+import styles from "../resources/styles/standardLayoutStyles";
 
 class ShowApplication extends React.Component {
   constructor(props) {
@@ -18,8 +19,9 @@ class ShowApplication extends React.Component {
     this.getApplications();
   }
 
+  //Requests applications 
   getApplications = async () => {
-    const response = await axios.get(`/api/application`, {
+    const response = await axios.get(`http://localhost:80/api/application`, {
       headers: { auth: localStorage.getItem("auth") }
     });
     this.setState({
@@ -43,7 +45,7 @@ class ShowApplication extends React.Component {
     }
     return (
       <div>
-        <h1 style={{ color: "white" }}>Applications</h1>
+        <h1 style={styles.h1}>Applications</h1>
         {this.renderApplications()}
       </div>
     );

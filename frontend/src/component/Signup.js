@@ -22,10 +22,12 @@ class Signup extends React.Component {
     };
   }
 
+  //checks if a string or a number is a number
   isNumeric(value) {
     return /^-{0,1}\d+$/.test(value);
   }
 
+  //Validates the SSN to 10 digit number
   validateSSN(ssn) {
     if (!this.isNumeric(ssn) || ssn.toString().length !== 10) {
       return { numeric: false, error: "SSN can only be a 10 digit number" };
@@ -43,7 +45,7 @@ class Signup extends React.Component {
     } else {
       const { name, surname, ssn, email, username, password } = this.state;
       try {
-        const response = await axios.post("/api/user", {
+        const response = await axios.post("http://localhost:80/api/user", {
           user: {
             name: name,
             surname: surname,
@@ -144,7 +146,7 @@ class Signup extends React.Component {
               <Button variant="primary" type="submit">
                 Signup
               </Button>
-              <Form.Row>{this.state.submitError}</Form.Row>
+              <Form.Row><p style={styles.error}>{this.state.submitError}</p></Form.Row>
             </Form>
           </Card.Body>
         </Card>

@@ -40,7 +40,7 @@ class SelectField extends React.Component {
           }}>
           {buttonName}
         </Button>
-        <p>{errors[0]}</p>
+        <p style={styles.error}>{errors[0]}</p>
       </Fragment>
     );
   }
