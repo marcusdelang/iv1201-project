@@ -1,4 +1,4 @@
-const {sendError} = require('./invalid');
+const { sendError } = require('./invalid');
 
 const DATE_PATTERN = /^(\d\d\d\d)-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])$/;
 
@@ -48,5 +48,5 @@ function form(req, res, next) {
 
 
 module.exports = {
-  form
+  form,
 };

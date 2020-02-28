@@ -4,5 +4,5 @@ const login = require('./login');
 
 module.exports = {
   application,
-  login
+  login,
 };

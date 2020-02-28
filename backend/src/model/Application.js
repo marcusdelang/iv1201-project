@@ -20,8 +20,8 @@ class Application {
       name: user.name,
       surname: user.surname,
       ssn: user.ssn,
-      email: user.email
-    }
+      email: user.email,
+    };
 
     this.store = async () => {
       await DAO.store(this);
@@ -55,7 +55,7 @@ async function getAll() {
   return DAO.getAll();
 }
 
-async function updateStatus(data){
+async function updateStatus(data) {
   return DAO.update(data);
 }
 
@@ -64,5 +64,5 @@ module.exports = {
   exists,
   find,
   getAll,
-  updateStatus
+  updateStatus,
 };
