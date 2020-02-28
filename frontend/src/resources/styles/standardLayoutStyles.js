@@ -9,14 +9,15 @@ const styles = {
         justifyContent: "center",
         alignItems: "center",
         marginTop: "2vh"
-        
-        /*,
-        position: 'absolute', left: '50%', top: '50%',
-        transform: 'translate(-50%, -50%)'
-        */
     },
     formField: {
         marginRight: "15px"
+    },
+    h1: {
+        color: "white"
+    },
+    error:{
+        color: "red"
     }    
 }
 export default styles;

@@ -1,16 +1,11 @@
-import React, { Fragment, useReducer } from "react";
+import React, { Fragment } from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Button from "react-bootstrap/Button";
-import Spinner from "react-bootstrap/Spinner";
+import { toast } from "react-toastify";
 
-import styles from "../resources/styles/signup.js";
-
+import styles from "../resources/styles/appNavbar";
 class AppNavbar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
 
   renderLogout() {
     const { changeAppState } = this.props;
@@ -23,7 +18,10 @@ class AppNavbar extends React.Component {
             changeAppState("user", false),
             changeAppState("role", false),
             changeAppState("applicationExists", false),
-            localStorage.clear()
+            localStorage.clear(),
+            toast.success("You are now logged out", {
+              position: toast.POSITION.TOP_CENTER
+            })
           )}
         >
           Logout
@@ -31,7 +29,6 @@ class AppNavbar extends React.Component {
       </Fragment>
     );
   }
-
 
   renderLoggedInUser() {
     const { applicationExists } = this.props.appState;
@@ -74,7 +71,7 @@ class AppNavbar extends React.Component {
       <div>
         <Navbar
           className="justify-content-between"
-          style={{ background: "white" }}
+          style={styles.navbar}
           expand="lg"
         >
           <Navbar.Brand href="/home">RecApp</Navbar.Brand>

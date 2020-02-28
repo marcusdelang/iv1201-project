@@ -4,13 +4,12 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import FormControl from "react-bootstrap/FormControl";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
-import SelectField from "./component/SelectField";
-import SelectedDates from "./component/SelectDates";
+import SelectField from "./innerComponent/SelectField";
+import DatePicker from "./innerComponent/DatePicker"
 
 import styles from "../resources/styles/standardLayoutStyles";
 class CreateApplication extends React.Component {
@@ -19,15 +18,13 @@ class CreateApplication extends React.Component {
     this.state = {
       workOptions: [""],
       workExp: "",
-      workExpYears: null,
+      workExpYears: "",
       storedWorkOptions: [],
       years: ["", 1, 2, 3, 4, 5, 6, 7, 9, 10],
       workPeriod: []
     };
   }
 
-  //Fetches all comptences when the component mounts, server sends 401 
-  //if the request is rejected resulting in a error message
   async componentDidMount() {
     try {
       const response = await axios.get("/api/competence", {
@@ -44,7 +41,7 @@ class CreateApplication extends React.Component {
       }
     }
   }
-  
+
   renderSelectedPeriod = selected => {
     return selected.map((entry, index) => (
       <Card key={index}>
@@ -64,7 +61,7 @@ class CreateApplication extends React.Component {
     return array;
   }
 
-  //Adds a comptence type and a number of years to an array 
+  //Adds a comptence type and a number of years to an array
   //and removes the comptence type from the options array from
   //which it was picked from
   addSelected = (type, years, store, options, error) => {
@@ -84,15 +81,6 @@ class CreateApplication extends React.Component {
     }
   };
 
-  //Handles a change in state, if a string contains only numbers it will store it as a number
-  //otherwise only the value will be stored 
-  handler = async e => {
-    const { id, value } = await e.target;
-    this.setState({
-      [id]: /^-{0,1}\d+$/.test(value) ? parseInt(value) : value
-    });
-  };
-
   renderSelected = selected => {
     return selected.map((entry, index) => (
       <Card key={index}>
@@ -105,7 +93,7 @@ class CreateApplication extends React.Component {
       </Card>
     ));
   };
-  
+
   renderOptions = (options, id) => {
     return options.map((option, index) => (
       <option id={id + index} key={index}>
@@ -113,46 +101,42 @@ class CreateApplication extends React.Component {
       </option>
     ));
   };
-  
-  addWorkPeriod(startDay, endDay, startMonth, endMonth) {
-    this.setState({
-      workPeriod: [
-        ...this.state.workPeriod,
-        {
-          from: "2020-" + startMonth + "-" + startDay,
-          to: "2020-" + endMonth + "-" + endDay
-        }
-      ]
-    });
+  addWorkPeriod(newPeriod) {
+    this.setState({workPeriod: [...this.state.workPeriod, newPeriod]});
   }
 
   submitApplication = async () => {
     if (this.state.workPeriod.length > 0) {
-      const response = await axios.post(
-        "/api/application",
-        {
-          form: {
-            availabilities: this.state.workPeriod,
-            competences: this.state.storedWorkOptions
+      try {
+        await axios.post(
+          "/api/application",
+          {
+            form: {
+              availabilities: this.state.workPeriod,
+              competences: this.state.storedWorkOptions
+            }
+          },
+          {
+            headers: {
+              auth: localStorage.getItem("auth")
+            }
           }
-        },
-        {
-          headers: {
-            auth: localStorage.getItem("auth")
-          }
-        }
-      );
-      if (response.status === 201) {
-        toast.success('Application created!');
+        );
         delete this.state.submitError;
         this.props.checkApplicationExist();
         this.setState({ submitSuccess: true });
-      } else if (response.status === 409) {
-        this.setState({
-          submitError: "You have already created an application"
+        toast.success("Application created!", {
+          position: toast.POSITION.TOP_CENTER
         });
-      } else if (response.status === 500) {
-        this.setState({ submitError: "Server problem, try again" });
+      } catch (error) {
+        const { status } = error.response;
+        if (status === 409) {
+          this.setState({
+            submitError: "You have already created an application"
+          });
+        } else if (status === 500) {
+          this.setState({ submitError: "Server problem, try again" });
+        }
       }
     } else {
       this.setState({
@@ -162,23 +146,26 @@ class CreateApplication extends React.Component {
   };
 
   renderForm = () => {
+    const {renderSelected, renderOptions, addSelected,state, props, renderSelectedPeriod, addWorkPeriod, submitApplication} = this
+    const {handler} = props
+    const {workOptions, years, workExpError, competenceError, workPeriod, submitError }= state
     return (
       <div style={styles.container}>
         <Card style={(styles.card, { minWidth: "400px" })}>
           <Card.Body>
             <Form>
-              {this.renderSelected(this.state.storedWorkOptions)}
-              {this.state.workOptions.length > 0 ? (
+              {renderSelected(this.state.storedWorkOptions)}
+              {state.workOptions.length > 0 ? (
                 <Fragment>
                   <SelectField
                     fieldTitles={["Work Experience", "Years"]}
                     buttonName="Add"
                     controlId={["workExp", "workExpYears"]}
-                    handler={this.handler.bind(this)}
-                    options={[this.state.workOptions, this.state.years]}
-                    renderOptions={this.renderOptions}
+                    handler={handler.bind(this)}
+                    options={[workOptions, years]}
+                    renderOptions={renderOptions}
                     addSelected={() =>
-                      this.addSelected(
+                      addSelected(
                         "workExp",
                         "workExpYears",
                         "storedWorkOptions",
@@ -186,25 +173,18 @@ class CreateApplication extends React.Component {
                         "workExpError"
                       )
                     }
-                    errors={[this.state.workExpError]}
+                    errors={[workExpError]}
                   />
-                  {this.state.competenceError}
+                  <p style={styles.error}>{competenceError}</p>
                 </Fragment>
               ) : (
                 ""
               )}
-              {this.renderSelectedPeriod(this.state.workPeriod)}
-              <SelectedDates
-                createAppState={this.state}
-                handler={this.handler}
-                parentHandler={this.handler.bind(this)}
-                selectedDates={this.state.selectedDates}
-                renderOptions={this.renderOptions}
-                add={this.addWorkPeriod.bind(this)}
-              />
+              {renderSelectedPeriod(workPeriod)}
+              <DatePicker addWorkPeriod={addWorkPeriod.bind(this)} createAppState={state}/>
               <Form.Row>
                 <Button
-                  onClick={this.submitApplication}
+                  onClick={submitApplication}
                   style={{ marginTop: "15px" }}
                   variant="info"
                   size="lg"
@@ -212,7 +192,7 @@ class CreateApplication extends React.Component {
                   Apply
                 </Button>
               </Form.Row>
-              {this.state.submitError}
+             <p style={styles.error}>{submitError}</p>
             </Form>
           </Card.Body>
         </Card>
@@ -222,17 +202,8 @@ class CreateApplication extends React.Component {
 
   render() {
     const { auth, applicationExists } = this.props.appState;
-    if (!auth || applicationExists) {
+    if (!auth || applicationExists || this.state.submitSuccess) {
       return <Redirect to="/home" />;
-    } else if (this.state.submitSuccess) {
-      return (
-        <Redirect
-          to={{
-            pathname: "/home",
-            state: { applySuccess: "success" }
-          }}
-        />
-      );
     }
     return this.renderForm();
   }

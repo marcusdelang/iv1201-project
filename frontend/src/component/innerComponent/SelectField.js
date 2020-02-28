@@ -1,9 +1,6 @@
 import React, { Fragment } from "react";
 import Form from "react-bootstrap/Form";
-import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 
 import styles from "../../resources/styles/standardLayoutStyles";
 class SelectField extends React.Component {
@@ -43,7 +40,7 @@ class SelectField extends React.Component {
           }}>
           {buttonName}
         </Button>
-        <p>{errors[0]}</p>
+        <p style={styles.error}>{errors[0]}</p>
       </Fragment>
     );
   }
