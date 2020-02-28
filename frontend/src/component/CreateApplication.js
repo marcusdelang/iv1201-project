@@ -27,7 +27,7 @@ class CreateApplication extends React.Component {
 
   async componentDidMount() {
     try {
-      const response = await axios.get("http://localhost:80/api/competence", {
+      const response = await axios.get("/api/competence", {
         headers: { auth: localStorage.getItem("auth") }
       });
       this.setState({
@@ -109,7 +109,7 @@ class CreateApplication extends React.Component {
     if (this.state.workPeriod.length > 0) {
       try {
         await axios.post(
-          "http://localhost:80/api/application",
+          "/api/application",
           {
             form: {
               availabilities: this.state.workPeriod,
