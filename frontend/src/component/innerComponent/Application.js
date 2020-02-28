@@ -18,7 +18,7 @@ class Application extends React.Component {
     const { version, person } = this.props.application;
     try {
       await axios.put(
-        "http://localhost:80/api/application",
+        "/api/application",
         { person: person.id, version, status },
         { headers: { auth: localStorage.getItem("auth") } }
       );

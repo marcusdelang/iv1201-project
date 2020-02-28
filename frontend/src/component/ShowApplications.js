@@ -21,7 +21,7 @@ class ShowApplication extends React.Component {
 
   //Requests applications 
   getApplications = async () => {
-    const response = await axios.get(`http://localhost:80/api/application`, {
+    const response = await axios.get(`/api/application`, {
       headers: { auth: localStorage.getItem("auth") }
     });
     this.setState({
