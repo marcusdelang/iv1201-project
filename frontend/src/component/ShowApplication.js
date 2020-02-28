@@ -3,7 +3,9 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import UserApplication from "./innerComponent/UserApplication";
+import UserApplication from "./innerComponent/Application";
+import styles from "../resources/styles/standardLayoutStyles";
+
 
 class ShowApplication extends React.Component {
   constructor(props) {
@@ -20,9 +22,9 @@ class ShowApplication extends React.Component {
       this.getApplication();
     }
   }
-
+  //Retrieves applicaiton for the user
   getApplication = async () => {
-    const response = await axios.get(`/api/application`, {
+    const response = await axios.get(`http://localhost:80/api/application`, {
       headers: { auth: localStorage.getItem("auth") }
     });
     if (response.data.length > 0) {
@@ -50,7 +52,7 @@ class ShowApplication extends React.Component {
     }
     return (
       <div>
-        <h1 style={{ color: "white" }}>Application</h1>
+        <h1 style={styles.h1}>Application</h1>
         {this.renderApplication()}
       </div>
     );

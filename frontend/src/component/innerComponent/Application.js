@@ -5,7 +5,7 @@ import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 
-class UserApplication extends React.Component {
+class Application extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,10 +13,47 @@ class UserApplication extends React.Component {
       updated: false
     };
   }
+  //Updates the status on an application
+  updateStatus = async status => {
+    const { version, person } = this.props.application;
+    try {
+      await axios.put(
+        "http://localhost:80/api/application",
+        { person: person.id, version, status },
+        { headers: { auth: localStorage.getItem("auth") } }
+      );
+      this.setState({ status: status });
+      this.setState({ updated: true });
+      delete this.state.changeStatusError;
+    } catch (error) {
+      console.log(error);
+      const { status } = error.response;
+      if (status === 400) {
+        this.setState({
+          changeStatusError: "try again incorrect information was sent"
+        });
+      } else if (status === 401) {
+        this.setState({ changeStatusError: "You are not logged in" });
+      } else if (status === 403) {
+        this.setState({
+          changeStatusError: "You don't have persmission, login as recruiter"
+        });
+      } else if (status === 409) {
+        this.setState({
+          changeStatusError:
+            "The application you have seen is not updated, try again"
+        });
+      } else if (status === 500) {
+        this.setState({
+          changeStatusError: "There was problem on the server try again"
+        });
+      }
+    }
+  };
   renderCompetences() {
     const { competences } = this.props.application;
     return competences.map(comp => (
-      <Card key={comp.competence_profile_id}>
+      <Card key={comp.name}>
         <Card.Body>
           <Row>
             <Col>Competence: {comp.name}</Col>
@@ -30,7 +67,7 @@ class UserApplication extends React.Component {
   renderAvailabilities() {
     const { availabilities } = this.props.application;
     return availabilities.map((availability, index) => (
-      <Card key={availability.availability_id}>
+      <Card key={index}>
         <Card.Body>
           <Row>
             <Col>From: {availability.from_date}</Col>
@@ -62,43 +99,6 @@ class UserApplication extends React.Component {
         </Button>
       </Fragment>
     );
-  };
-
-  updateStatus = async status => {
-    const { version, person } = this.props.application;
-    try {
-      await axios.put(
-        "/api/application",
-        { person: person.id, version, status },
-        { headers: { auth: localStorage.getItem("auth") } }
-      );
-      this.setState({ status: status });
-      this.setState({ updated: true });
-      delete this.state.changeStatusError;
-    } catch (error) {
-      console.log(error);
-      const { status } = error.response;
-      if (status === 400) {
-        this.setState({
-          changeStatusError: "try again incorrect information was sent"
-        });
-      } else if (status === 401) {
-        this.setState({ changeStatusError: "You are not logged in" });
-      } else if (status === 403) {
-        this.setState({
-          changeStatusError: "You don't have persmission, login as recruiter"
-        });
-      } else if (status === 409) {
-        this.setState({
-          changeStatusError:
-            "The application you have seen is not updated, try again"
-        });
-      } else if (status === 500) {
-        this.setState({
-          changeStatusError: "There was problem on the server try again"
-        });
-      }
-    }
   };
 
   render() {
@@ -135,4 +135,4 @@ class UserApplication extends React.Component {
   }
 }
 
-export default UserApplication;
+export default Application;

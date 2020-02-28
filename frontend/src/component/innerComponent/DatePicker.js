@@ -5,8 +5,7 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 
 import "react-datepicker/dist/react-datepicker.css";
-
-// CSS Modules, react-datepicker-cssmodules.css
+import styles from "../../resources/styles/standardLayoutStyles";
 
 class DatePicker extends React.Component {
   state = {
@@ -25,16 +24,21 @@ class DatePicker extends React.Component {
       endDate: date
     });
   };
+
+  //changes the date format to YYYY-MM-DD
   formatDate(date) {
     const month = this.styleDate(date.getMonth() + 1);
     const day = this.styleDate(date.getDate());
     const year = date.getFullYear();
     return year + "-" + month + "-" + day;
   }
+  //adds a 0 to a number less than 10  so that we get 07 instead of 7
   styleDate = number => {
     if (number < 10) return `0${number}`;
     else return `${number}`;
   };
+
+  //adds a period to the list of available periods
   addWorkPeriod = () => {
     const dateCheck = this.checkDate();
     if (dateCheck.check) {
@@ -44,6 +48,8 @@ class DatePicker extends React.Component {
       this.setState({ dateError: dateCheck.dateError });
     }
   };
+  //Verfies a format on a period, start date need to be before end date
+  //and you cannot add a period alrdy added once
   checkDate = () => {
     const { startDate, endDate } = this.state;
     console.log(Date.parse(startDate) < Date.parse(endDate));
@@ -57,6 +63,7 @@ class DatePicker extends React.Component {
           return { check: false, dateError: "You cannot add the same period" };
         }
       }
+      delete this.state.dateError;
       return { check: true, newDate: newDate };
     } else {
       return {
@@ -83,7 +90,7 @@ class DatePicker extends React.Component {
           </Col>
           <Col>
             <DatePickerFrame
-            style={{ marginTop: "15px" }}
+              style={{ marginTop: "15px" }}
               selected={this.state.endDate}
               onChange={this.handleChangeEnd}
             />
@@ -91,14 +98,12 @@ class DatePicker extends React.Component {
         </Row>
         <Row>
           <Col>
-          <Button 
-            style={{ marginTop: "15px" }}
-            onClick={this.addWorkPeriod}>
-            Add
-          </Button>
+            <Button style={{ marginTop: "15px" }} onClick={this.addWorkPeriod}>
+              Add
+            </Button>
           </Col>
         </Row>
-        {this.state.dateError}
+        <p style={styles.error}>{this.state.dateError}</p>
       </Fragment>
     );
   }
