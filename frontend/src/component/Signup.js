@@ -4,6 +4,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 import styles from "../resources/styles/standardLayoutStyles";
 
@@ -21,18 +22,12 @@ class Signup extends React.Component {
     };
   }
 
-  handleChange = async event => {
-    const { id, value } = await event.target;
-    this.setState({
-      [id]: value
-    });
-  };
-
   isNumeric(value) {
     return /^-{0,1}\d+$/.test(value);
   }
+
   validateSSN(ssn) {
-    if (!this.isNumeric(ssn) || ssn.length != 10) {
+    if (!this.isNumeric(ssn) || ssn.toString().length !== 10) {
       return { numeric: false, error: "SSN can only be a 10 digit number" };
     } else {
       return { numeric: true, error: null };
@@ -47,7 +42,7 @@ class Signup extends React.Component {
       e.stopPropagation();
     } else {
       const { name, surname, ssn, email, username, password } = this.state;
-      try{
+      try {
         const response = await axios.post("/api/user", {
           user: {
             name: name,
@@ -58,31 +53,26 @@ class Signup extends React.Component {
             password: password
           }
         });
+        toast.success("Signup was successful, now log in!", {
+          position: toast.POSITION.TOP_CENTER
+        });
         this.setState({ status: response.status });
         delete this.state.submitError;
-      } catch(error){
-        const {status, data} = error.response
-        if(status === 409){
-          this.setState({submitError: data.field + " already exists"})
-        } else if(status === 500){
-          this.setState({submitError: "Server problem, try again"})
+      } catch (error) {
+        const { status, data } = error.response;
+        if (status === 409) {
+          this.setState({ submitError: data.field + " already exists" });
+        } else if (status === 500) {
+          this.setState({ submitError: "Server problem, try again" });
         }
       }
-      }
+    }
   };
 
   render() {
-    if (this.props.appState.auth) {
+    const {handler} = this.props
+    if (this.props.appState.auth || this.state.status === 201) {
       return <Redirect to="/home" />;
-    } else if (this.state.status === 201) {
-      return (
-        <Redirect
-          to={{
-            pathname: "/home",
-            state: { signup: "success" }
-          }}
-        />
-      );
     }
     return (
       <div style={styles.container}>
@@ -100,7 +90,7 @@ class Signup extends React.Component {
                     as="input"
                     type="username"
                     placeholder="username"
-                    onChange={this.handleChange}
+                    onChange={handler.bind(this)}
                   />
                 </Form.Group>
                 <Form.Group controlId="password">
@@ -109,7 +99,7 @@ class Signup extends React.Component {
                     required
                     type="password"
                     placeholder="Password"
-                    onChange={this.handleChange}
+                    onChange={handler.bind(this)}
                   />
                 </Form.Group>
               </Form.Row>
@@ -119,7 +109,7 @@ class Signup extends React.Component {
                   required
                   type="email"
                   placeholder="Email@domain.com"
-                  onChange={this.handleChange}
+                  onChange={handler.bind(this)}
                 />
               </Form.Group>
               <Form.Row>
@@ -129,7 +119,7 @@ class Signup extends React.Component {
                     required
                     type="name"
                     placeholder="Name"
-                    onChange={this.handleChange}
+                    onChange={handler.bind(this)}
                   />
                 </Form.Group>
                 <Form.Group style={styles.formField} controlId="surname">
@@ -138,7 +128,7 @@ class Signup extends React.Component {
                     required
                     type="surname"
                     placeholder="Surname"
-                    onChange={this.handleChange}
+                    onChange={handler.bind(this)}
                   />
                 </Form.Group>
                 <Form.Group controlId="ssn">
@@ -147,7 +137,7 @@ class Signup extends React.Component {
                     required
                     type="ssn"
                     placeholder="YYMMDDXXXX"
-                    onChange={this.handleChange}
+                    onChange={handler.bind(this)}
                   />
                 </Form.Group>
               </Form.Row>

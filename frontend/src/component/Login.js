@@ -4,6 +4,7 @@ import { Redirect } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 import styles from "../resources/styles/standardLayoutStyles";
 
@@ -15,12 +16,6 @@ class Login extends React.Component {
       password: ""
     };
   }
-  handler = async e => {
-    const { id, value } = await e.target;
-    this.setState({
-      [id]: value
-    });
-  };
 
   login = async e => {
     e.preventDefault();
@@ -37,6 +32,9 @@ class Login extends React.Component {
         changeAppState("role", user.role);
         checkApplicationExist();
         delete this.state.submitError;
+        toast.success("You are now logged in!", {
+          position: toast.POSITION.TOP_CENTER
+        });
       } catch (error) {
         const { status, data } = error.response;
         if (status === 401 && data.cause === "invalid") {
@@ -53,7 +51,7 @@ class Login extends React.Component {
     if (this.props.appState.auth) {
       return <Redirect to="/home" />;
     }
-
+    const {handler} = this.props
     return (
       <div style={styles.container}>
         <Card style={styles.card}>
@@ -68,7 +66,7 @@ class Login extends React.Component {
                   required
                   type="username"
                   placeholder="Username"
-                  onChange={this.handler}
+                  onChange={handler.bind(this)}
                 />
               </Form.Group>
               <Form.Group controlId="password">
@@ -77,7 +75,7 @@ class Login extends React.Component {
                   required
                   type="password"
                   placeholder="Password"
-                  onChange={this.handler}
+                  onChange={handler.bind(this)}
                 />
               </Form.Group>
               <Button variant="primary" type="submit">

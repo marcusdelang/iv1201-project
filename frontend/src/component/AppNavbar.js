@@ -29,7 +29,6 @@ class AppNavbar extends React.Component {
     );
   }
 
-
   renderLoggedInUser() {
     const { applicationExists } = this.props.appState;
     if (!applicationExists) {

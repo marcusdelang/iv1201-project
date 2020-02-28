@@ -2,8 +2,7 @@ import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
-import UserApplication from './component/UserApplication';
-
+import UserApplication from "./innerComponent/UserApplication";
 
 class ShowApplication extends React.Component {
   constructor(props) {
@@ -11,7 +10,7 @@ class ShowApplication extends React.Component {
     this.state = {
       applications: [],
       user: this.props.appState.user,
-      modalShow: false,
+      modalShow: false
     };
   }
 
@@ -23,32 +22,30 @@ class ShowApplication extends React.Component {
     const response = await axios.get(`/api/application`, {
       headers: { auth: localStorage.getItem("auth") }
     });
-    const {} = response.data;
     this.setState({
       applications: response.data
     });
   };
 
   renderApplications = () => {
-    const {applications} = this.state
-    return applications.map((app)=>
-         <UserApplication 
-            key={app.person.id}
-            application={app}
-            recruiter
-         />
-    );
- }
+    const { applications } = this.state;
+    return applications.map(app => (
+      <UserApplication key={app.person.id} application={app} recruiter />
+    ));
+  };
 
   render() {
-    if (!this.props.appState.auth || !(JSON.parse(this.props.appState.role) === 1)) {
+    if (
+      !this.props.appState.auth ||
+      !(JSON.parse(this.props.appState.role) === 1)
+    ) {
       return <Redirect to="/home" />;
     }
     return (
-    <div>
+      <div>
         <h1 style={{ color: "white" }}>Applications</h1>
         {this.renderApplications()}
-    </div>
+      </div>
     );
   }
 }
