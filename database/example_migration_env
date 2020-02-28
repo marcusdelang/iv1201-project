@@ -1,5 +1,1 @@
-export IV1201_DB_USER="iv1201"
-export IV1201_DB_PW="leif"
-export IV1201_DB_PROTOCOL="tcp"
-export IV1201_DB_IP="127.0.0.1:3306"
-export IV1201_DB_NAME="iv1201mysql"
+export IV1201_DBCREDENTIALS="iv1201:leif@tcp(127.0.0.1:3306)/iv1201mysql"

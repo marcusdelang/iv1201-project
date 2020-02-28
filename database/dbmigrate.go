@@ -8,8 +8,9 @@ import (
 	"os"
 )
 
-// target file
+// target files
 const MIGRATIONFILE = "database_dump.sql"
+const MAILFILE = "users_to_email.txt"
 
 // custom placeholders to replace NULL values
 const PLACEHOLDERTEXT = "thisIsAStringOfWordsThatIsWrittenInPlaceOfProperDataInCaseAPasswordOrEmailOrSomethingElseIsMissingInTheOriginalDatabase"
@@ -17,16 +18,13 @@ const PLACEHOLDERINT = 133747116969666
 
 func main() {
 	// Read environment variables
-	USER := os.Getenv("IV1201_DB_USER")
-	PW := os.Getenv("IV1201_DB_PW")
-	PROTOCOL := os.Getenv("IV1201_DB_PROTOCOL")
-	IP := os.Getenv("IV1201_DB_IP")
-	DBNAME := os.Getenv("IV1201_DB_NAME")
+	DBCREDENTIALS := os.Getenv("IV1201_DBCREDENTIALS")
 
 	// create a db connection pool using the provided environment variables
-	db, err := sql.Open("mysql", USER+":"+PW+"@"+PROTOCOL+"("+IP+")/"+DBNAME)
+	db, err := sql.Open("mysql", DBCREDENTIALS)
 	// local test db, not reachable from internet
 	//db, err := sql.Open("mysql", "iv1201:leif@tcp(127.0.0.1:3306)/iv1201mysql")
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,8 +35,12 @@ func main() {
 		fmt.Println("DB not accessible!")
 		log.Fatal(err)
 	}
+	createFiles()
+	readTableContent(db)
+}
 
-	err = os.Remove(MIGRATIONFILE)
+func createFiles() {
+	err := os.Remove(MIGRATIONFILE)
 	if err != nil {
 		log.Println("No previous dump file found to overwrite")
 	} else {
@@ -50,13 +52,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	readTableContent(db)
+	err = os.Remove(MAILFILE)
+	if err != nil {
+		log.Println("No previous mail file found to overwrite")
+	} else {
+		log.Println("Deleted previous mail file")
+	}
+
+	_, err = os.Create(MAILFILE)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-// Writes the provided input to a file specified in the constant MIGRATIONFILE
-// Input: a string that shall be written to file
-func writeToFile(input string) error {
-	file, err := os.OpenFile(MIGRATIONFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+// Writes the provided input to a file
+// Input: a file to write to, a string that shall be written to the file
+func writeToFile(target string, input string) error {
+	file, err := os.OpenFile(target, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,6 +81,11 @@ func writeToFile(input string) error {
 		log.Fatal(err)
 	}
 	return nil
+}
+
+func appendToMailFile (email string, personID int64, reason string) {
+	log.Printf("User %d lacks a valid " + reason + "\n    User was NOT migrated! \n    User was appended to list of users to email!", personID)
+	writeToFile(MAILFILE, email + ", reason: " + reason)
 }
 
 // Call the functions that read each table one by one
@@ -129,7 +146,7 @@ func migrateRole(db *sql.DB) error {
 		log.Println(roleId.Int64, name.String)
 
 		row := fmt.Sprintf("INSERT INTO role (role_id, name) VALUES (%d, '%s');", roleId.Int64, name.String)
-		writeToFile(row)
+		writeToFile(MIGRATIONFILE, row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -138,6 +155,8 @@ func migrateRole(db *sql.DB) error {
 }
 
 // Read data from the table "person" and export it to the dumpfile
+// Users with missing data is handled differently depending on if they are
+// administrators or users.
 // Input: a database handle
 func migratePerson(db *sql.DB) error {
 	rows, err := db.Query("SELECT `person_id`, `name`, `surname`, ssn, `email`, `password`, role_id, `username` from person")
@@ -156,35 +175,60 @@ func migratePerson(db *sql.DB) error {
 			log.Fatal(err)
 		}
 
+		// Preface: All data is considered old, we only want to migrate complete users
+		// Anyone who does not have a complete profile (except for recruiter accounts)
+		// will need to recreate their account on the new site.
+
+		// If the primary key is missing then break,
+		// this is not allowed even in the old db.
 		if personId.Valid != true {
-			personId.Int64 = PLACEHOLDERINT
+			break
 		}
-		if name.Valid != true {
-			name.String = PLACEHOLDERTEXT
-		}
-		if surname.Valid != true {
-			surname.String = PLACEHOLDERTEXT
-		}
-		if ssn.Valid != true {
-			ssn.String = PLACEHOLDERTEXT
-		}
-		if email.Valid != true {
-			email.String = PLACEHOLDERTEXT
-		}
-		if password.Valid != true {
-			password.String = PLACEHOLDERTEXT
-		}
+		// If there is no roleID set for the user
+		// then they shouldn't be here anyway
 		if roleId.Valid != true {
-			roleId.Int64 = PLACEHOLDERINT
+			break
 		}
-		if username.Valid != true {
-			username.String = PLACEHOLDERTEXT
+		// If there is no email in the old db
+		// and the specific user is NOT an admin (roleID == 1)
+		// then do not migrate the user as they are considered invalid.
+		if email.Valid == false && roleId.Int64 != 1 {
+			break
+		}
+		// For all users that are not administrators/recruiters check if the other fields are valid.
+		// If they are invalid append the user's email to the list of users to email and then break.
+		if roleId.Int64 == 2 {
+			if password.Valid != true {
+				password.String = PLACEHOLDERTEXT
+				appendToMailFile(email.String, personId.Int64, "password")
+				break
+			}
+			if username.Valid != true {
+				username.String = PLACEHOLDERTEXT
+				appendToMailFile(email.String, personId.Int64, "username")
+				break
+			}
+			if name.Valid != true {
+				name.String = PLACEHOLDERTEXT
+				appendToMailFile(email.String, personId.Int64, "name")
+				break
+			}
+			if surname.Valid != true {
+				surname.String = PLACEHOLDERTEXT
+				appendToMailFile(email.String, personId.Int64, "surname")
+				break
+			}
+			if ssn.Valid != true {
+				ssn.String = PLACEHOLDERTEXT
+				appendToMailFile(email.String, personId.Int64, "ssn")
+				break
+			}
 		}
 
 		log.Println(personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
 
 		row := fmt.Sprintf("INSERT INTO person (person_id, name, surname, ssn, email, password, role, username) VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, '%s');", personId.Int64, name.String, surname.String, ssn.String, email.String, password.String, roleId.Int64, username.String)
-		writeToFile(row)
+		writeToFile(MIGRATIONFILE, row)
 
 	}
 	if err := rows.Err(); err != nil {
@@ -228,7 +272,7 @@ func migrateAvailability(db *sql.DB) error {
 		log.Println(availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
 
 		row := fmt.Sprintf("INSERT INTO availability (availability_id, person, from_date, to_date) VALUES (%d, %d, '%s', '%s');", availabilityId.Int64, personId.Int64, fromDate.String, toDate.String)
-		writeToFile(row)
+		writeToFile(MIGRATIONFILE, row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -266,7 +310,7 @@ func migrateCompetence(db *sql.DB) error {
 
 		row := fmt.Sprintf("INSERT INTO competence (competence_id, name) VALUES (%d, '%s');", competenceId.Int64, name.String)
 
-		writeToFile(row)
+		writeToFile(MIGRATIONFILE, row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -310,7 +354,7 @@ func migrateCompetenceProfile(db *sql.DB) error {
 
 		row := fmt.Sprintf("INSERT INTO competence_profile (competence_profile_id, person, competence, years_of_experience) VALUES (%d, %d, %d, %.1f);", competenceId.Int64, personId.Int64, competenceId.Int64, yearsOfExperience.Float64)
 
-		writeToFile(row)
+		writeToFile(MIGRATIONFILE, row)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -357,7 +401,7 @@ func checkApplications(db *sql.DB) error {
 			if applicantId.Int64 == availpersonId.Int64 {
 				output := fmt.Sprintf("INSERT INTO application (version, person, status) VALUES (1, %d, 'unhandled');", availpersonId.Int64)
 
-				writeToFile(output)
+				writeToFile(MIGRATIONFILE, output)
 			}
 			break
 		}
