@@ -78,23 +78,6 @@ describe('Endpoint: /api', () => {
     }
   });
 
-  describe('Endpoint: /api', () => {
-    const fs = require('fs');
-    test('GET => 200 It should return the API index page', async (done) => {
-      try {
-        const res = await axios.get(`http://localhost:${port}/api`);
-        fs.readFile(path.join(__dirname, '..', 'src', 'views', 'index.html'), (err, fileData) => {
-          if (err) return done(err);
-          expect(res.status).toEqual(200);
-          expect(res.data).toEqual(fileData.toString());
-          return done();
-        });
-      } catch (error) {
-        return done(error);
-      }
-    });
-  });
-
   describe('Endpoint: /api/user', () => {
     test('POST => 201 It should create a new user in database', async (done) => {
       try {
@@ -131,6 +114,22 @@ describe('Endpoint: /api', () => {
         return done();
       } catch (error) {
         return done(error);
+      }
+    });
+
+    test('POST => 401 It should 401 if wrong password', async (done) => {
+      try {
+        const res = await axios.post(`http://localhost:${port}/api/login`, {
+          username: 'testapp',
+          password: 'wrong',
+        });
+        return done(new Error('Should throw 401'))
+      } catch (error) {
+        expect(error.response.status).toEqual(401);
+        expect(typeof(error.response.data)).toEqual('object');
+        expect(error.response.data.cause).toEqual('invalid');
+        expect(error.response.data.field).toEqual('credentials');
+        return done();
       }
     });
   });

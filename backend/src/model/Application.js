@@ -6,18 +6,22 @@ const DAO = require('../integration/ApplicationDAO');
 class Application {
   /**
    * Create an application
-   * @param {Object} form 
-   * @param {Object} user 
+   * @param {Object} form
+   * @param {Object} user
    */
   constructor(form, user) {
-    form.version ? this.version = form.version : this.version = 1;
-    form.status ? this.status = form.status : this.status = 'unhandled';
     this.version = form.version || 1;
     this.status = form.status || 'unhandled';
     const { availabilities, competences } = form;
-    this.person = user.person_id;
     this.availabilities = availabilities;
     this.competences = competences;
+    this.person = {
+      id: user.person_id,
+      name: user.name,
+      surname: user.surname,
+      ssn: user.ssn,
+      email: user.email,
+    };
 
     this.store = async () => {
       await DAO.store(this);
@@ -27,7 +31,7 @@ class Application {
 
 /**
  * Checks if an application exists for a user.
- * @param {number} personId 
+ * @param {number} personId
  * @return {boolean} Application exists
  */
 async function exists(personId) {
@@ -36,7 +40,7 @@ async function exists(personId) {
 
 /**
  * Finds an application for a user.
- * @param {number} personId 
+ * @param {number} personId
  * @return {Object} An application
  */
 async function find(personId) {
@@ -51,9 +55,14 @@ async function getAll() {
   return DAO.getAll();
 }
 
+async function updateStatus(data) {
+  return DAO.update(data);
+}
+
 module.exports = {
   Application,
   exists,
   find,
   getAll,
+  updateStatus,
 };

@@ -1,11 +1,13 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
-import Button from "react-bootstrap/Button";
-
 import styles from "../resources/styles/standardLayoutStyles";
 
 class Home extends React.Component {
-  renderMessage = (message) => {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+  renderMessage(message) {
     return (
       <div style={styles.container}>
         <Card style={styles.card}>
@@ -15,21 +17,15 @@ class Home extends React.Component {
         </Card>
       </div>
     );
-  };
-  
-  removeLoginMessage = () => {
-    
-    localStorage.removeItem("loginMessage");
+  }
+
+  removeFromStore = (id, message) => {
+    localStorage.removeItem(id);
+    return this.renderMessage(message);
   };
 
   render() {
-    return (
-      <div>
-        {localStorage.getItem("loginMessage") && this.renderMessage('You are now logged in!')}
-        {localStorage.getItem("loginMessage") ? this.removeLoginMessage() : ""}
-        {!localStorage.getItem('auth') && this.renderMessage('Signup now to apply for the job of a lifetime!')}
-      </div>
-    );
+    return <div></div>;
   }
 }
 

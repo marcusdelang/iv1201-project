@@ -7,8 +7,9 @@
   },
   "private": true,
   "scripts": {
-    "start": "env NODE_ENV=production node ./src/bin/www",
-    "dev": "env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp nodemon ./src/bin/www",
+    "start": "env NODE_ENV=heroku node ./src/bin/www",
+    "prod": "env NODE_ENV=production DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp node ./src/bin/www",
+    "dev": "env NODE_ENV=development DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp nodemon ./src/bin/www",
     "docker": "nodemon ./src/bin/www",
     "lint": "eslint . --fix",
     "test": "env NODE_ENV=development env DATABASE_URL=postgres://postgres:postgres@localhost:5432/recapp ./node_modules/.bin/jest",
@@ -17,16 +18,15 @@
   "dependencies": {
     "app-root-path": "^3.0.0",
     "axios": "^0.19.1",
-    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dateformat": "^3.0.3",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
+    "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
     "node-pre-gyp": "^0.14.0",
-    "node-cache": "^5.1.0",
     "path": "^0.12.7",
-    "pg": "^7.17.1",
-    "winston": "^3.2.1"
+    "pg": "^7.17.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
