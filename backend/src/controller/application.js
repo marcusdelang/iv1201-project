@@ -5,7 +5,7 @@ const {
   exists: applicationExists,
   find: findApplication,
   getAll: getAllApplications,
-  updateStatus
+  updateStatus,
 } = require('../model/Application');
 
 
@@ -17,7 +17,7 @@ const {
 async function createApplication(form, user) {
   try {
     if (await applicationExists(user.person_id)) {
-      throw { message: 'Application already exists for user ' + user.username };
+      throw { message: `Application already exists for user ${user.username}` };
     }
     await new Application(form, user).store();
     logger.log(`Stored application for user ${user.username}`);
@@ -28,13 +28,13 @@ async function createApplication(form, user) {
 
 /**
  * Updates the status of an application.
- * @param {Object} data 
- * @param {Object} user 
+ * @param {Object} data
+ * @param {Object} user
  */
 async function updateApplicationStatus(data, user) {
   try {
-    if (!await applicationExists(data.person)){
-      throw {message: 'no application'};
+    if (!await applicationExists(data.person)) {
+      throw { message: 'no application' };
     }
     await updateStatus(data);
     logger.log(`Application for user ${data.person} updated by ${user.username}`);
@@ -92,5 +92,5 @@ module.exports = {
   createApplication,
   updateApplicationStatus,
   getApplications,
-  getApplicationWithId
+  getApplicationWithId,
 };

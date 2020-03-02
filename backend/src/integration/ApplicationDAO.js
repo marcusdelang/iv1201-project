@@ -10,7 +10,7 @@ const PREPARED_STATEMENT_FIND_APPLICATION = 'SELECT * FROM Application WHERE per
 const PREPARED_STATEMENT_FIND_COMPETENCE_PROFILES = 'SELECT * FROM Competence_profile WHERE person = $1;';
 const PREPARED_STATEMENT_FIND_AVAILABILITIES = 'SELECT * FROM Availability WHERE person = $1;';
 const PREPARED_STATEMENT_GET_ALL_APPLICATIONS = 'SELECT * FROM Application;';
-const PREPARED_STATEMENT_UPDATE_STATUS = 'UPDATE Application SET status = $1, version = $2 WHERE person = $3;'
+const PREPARED_STATEMENT_UPDATE_STATUS = 'UPDATE Application SET status = $1, version = $2 WHERE person = $3;';
 
 const transaction = new Transaction();
 
@@ -36,7 +36,7 @@ async function store(application) {
     for (const competence of competences) {
       const res = await transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_ID, [competence.name]);
       if (res.rows.length === 0) {
-        throw { message: 'no competence' }
+        throw { message: 'no competence' };
       }
       await transaction.query(PREPARED_STATEMENT_STORE_COMPETENCE_PROFILE,
         [person.id, res.rows[0].competence_id, competence.years_of_experience]);
@@ -88,7 +88,7 @@ async function buildApplication(personId) {
     transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_COMPETENCE_PROFILES, [personId]),
     transaction.query(PREPARED_STATEMENT_FIND_AVAILABILITIES, [personId]),
-    transaction.query(PREPARED_STATEMENT_FIND_PERSON, [personId])
+    transaction.query(PREPARED_STATEMENT_FIND_PERSON, [personId]),
   ]);
   const application = values[0].rows[0];
   const competenceProfiles = values[1].rows;
@@ -96,7 +96,7 @@ async function buildApplication(personId) {
   const person = values[3].rows[0];
   const queries = [];
   for (const competence of competenceProfiles) {
-    queries.push(transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_NAME, [competence.competence]))
+    queries.push(transaction.query(PREPARED_STATEMENT_GET_COMPETENCE_NAME, [competence.competence]));
   }
   values = await Promise.all(queries);
   let index = 0;
@@ -104,7 +104,7 @@ async function buildApplication(personId) {
     competence.name = values[index++].rows[0].name;
     delete competence.person;
     delete competence.competence_profile_id;
-    delete competence.competence
+    delete competence.competence;
   }
   for (const availability of availabilities) {
     delete availability.person;
@@ -118,7 +118,7 @@ async function buildApplication(personId) {
       name: person.name,
       surname: person.surname,
       ssn: person.ssn,
-      email: person.email
+      email: person.email,
     },
     availabilities,
     competences: competenceProfiles,
@@ -135,7 +135,7 @@ async function getAll() {
     const applicationMetas = (await transaction.query(PREPARED_STATEMENT_GET_ALL_APPLICATIONS)).rows;
     const applications = [];
     for (meta of applicationMetas) {
-      applications.push(await buildApplication(meta.person))
+      applications.push(await buildApplication(meta.person));
       delete meta.person;
     }
     await transaction.end();
@@ -150,14 +150,14 @@ async function update(data) {
   try {
     await transaction.start();
     const application = (await transaction.query(PREPARED_STATEMENT_FIND_APPLICATION, [data.person])).rows[0];
-    if(application.version !== data.version){
-      throw {message: 'bad version'}
+    if (application.version !== data.version) {
+      throw { message: 'bad version' };
     }
     await transaction.query(PREPARED_STATEMENT_UPDATE_STATUS, [data.status, data.version + 1, data.person]);
     await transaction.end();
   } catch (error) {
     await transaction.rollback();
-    throw {message: `Database error: ${error.message}`}
+    throw { message: `Database error: ${error.message}` };
   }
 }
 
@@ -166,5 +166,5 @@ module.exports = {
   exists,
   find,
   getAll,
-  update
+  update,
 };

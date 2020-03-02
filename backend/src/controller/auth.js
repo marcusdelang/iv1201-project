@@ -32,4 +32,4 @@ async function auth(credentials) {
   }
 }
 
-  module.exports = { auth };
+module.exports = { auth };
