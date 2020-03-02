@@ -43,6 +43,8 @@ class Login extends React.Component {
           this.setState({ submitError: "User does not exist" });
         } else if (status === 500) {
           this.setState({ submitError: "Server problem, please try again" });
+        } else if (status === 400){
+          this.setState({ submitError: "Invalid input, all fields are required" });
         }
       }
     }
