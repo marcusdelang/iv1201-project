@@ -66,6 +66,8 @@ class Signup extends React.Component {
           this.setState({ submitError: data.field + " already exists" });
         } else if (status === 500) {
           this.setState({ submitError: "Server problem, try again" });
+        } else if (status === 400){
+          this.setState({ submitError: "Invalid input, all fields are required" });
         }
       }
     }

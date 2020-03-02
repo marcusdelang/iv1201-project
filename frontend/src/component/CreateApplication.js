@@ -61,9 +61,11 @@ class CreateApplication extends React.Component {
     return array;
   }
 
-  //Adds a comptence type and a number of years to an array
-  //and removes the comptence type from the options array from
-  //which it was picked from
+  /*
+  Adds a comptence type and a number of years to an array
+  and removes the comptence type from the options array from
+  which it was picked from
+  */
   addSelected = (type, years, store, options, error) => {
     if (this.state[type] !== "" && this.state[years] !== "") {
       this.setState({
@@ -136,6 +138,8 @@ class CreateApplication extends React.Component {
           });
         } else if (status === 500) {
           this.setState({ submitError: "Server problem, try again" });
+        } else if(status === 400 ){
+          this.setState({ submitError: "Invalid input, all fields are required" });
         }
       }
     } else {
