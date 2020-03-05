@@ -7,6 +7,9 @@ import Button from "react-bootstrap/Button";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from "../../resources/styles/standardLayoutStyles";
 
+/*
+* Represents the datepicker for a work period
+*/
 class DatePicker extends React.Component {
   state = {
     startDate: new Date("2020/01/01"),

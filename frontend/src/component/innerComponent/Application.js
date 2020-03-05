@@ -5,6 +5,9 @@ import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 
+/*
+* Represents one application
+*/
 class Application extends React.Component {
   constructor(props) {
     super(props);
