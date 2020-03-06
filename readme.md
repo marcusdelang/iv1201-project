@@ -8,7 +8,8 @@ The in-production website is hosted on Heroku and is live on https://iv1201-proj
 
 ## Requirements
 
-- Website code is written in [Node.js](https://nodejs.org/), which is required to run the website. (Mandatory)
+- Backend code is written in [Node.js](https://nodejs.org/), which is required to run the website. (Mandatory)
+- Frontend code is written JavaScript using the React framework.[React](https://reactjs.org/)(Mandatory)
 - [Docker and Docker-compose](https://www.docker.com/) are used to host a development environment locally. (Mandatory)
 - The database migration program is written in [Go](https://golang.org/). (Optional)
 
@@ -37,6 +38,52 @@ Must be run in a separate terminal when the Docker environment is fully up and r
 ```bash
 docker exec -it app npm run test-docker --prefix backend    # Run tests in development env
 ```
+
+## Project structure
+Project root
+│
+├── backend  
+│   ├── logs  
+│   ├── src  
+│   │   ├── bin  
+│   │   │   └── routes  
+│   │   ├── controller  
+│   │   ├── integration  
+│   │   ├── model  
+│   │   └── util  
+│   │       ├── error  
+│   │       ├── logger  
+│   │       └── middlewares  
+│   │           ├── auth  
+│   │           ├── error  
+│   │           └── validate  
+│   └── `__tests__`  
+├── database  
+├── frontend  
+│   ├── public  
+│   └── src  
+│       ├── component  
+│       │   └── innerComponent  
+│       └── resources  
+│           └── styles  
+└── node_modules
+### Current API
+We have the following endpoints:
+/api/user(POST)
+/api/comptenec(GET) 
+/api/application (POST, GET, PUT)
+/api/logi (POST)
+### Backend
+The backend conforms to the MVC pattern, but without a classic view since there is no backend rendering, the application is a CRUD app. Following REST conventions.
+-logs
+In the logs directory you can find access log, 
+### Frontend
+The structure of the frontend directories follows a react standard.
+## Code overview
+### Backend
+### Frontend
+The Frontend
+
 
 ## Run database migration
 
