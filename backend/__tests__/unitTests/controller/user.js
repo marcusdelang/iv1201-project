@@ -1,5 +1,5 @@
 const userController = require('../../../src/controller/user');
-const { User } = require('../../../src/model/user');
+const { User } = require('../../../src/model/User');
 const transaction = new (require('../../../src/integration/dbh').Transaction);
 const endConnection = require('../../../src/integration/dbh').endConnection;
 
