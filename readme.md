@@ -40,6 +40,8 @@ docker exec -it app npm run test-docker --prefix backend    # Run tests in devel
 ```
 
 ## Project structure
+
+```
 Project root
 │
 ├── backend  
@@ -57,7 +59,7 @@ Project root
 │   │           ├── auth  
 │   │           ├── error  
 │   │           └── validate  
-│   └── `__tests__`  
+│   └── __tests__  
 ├── database  
 ├── frontend  
 │   ├── public  
@@ -67,7 +69,9 @@ Project root
 │       └── resources  
 │           └── styles  
 └── node_modules
-### Current API  
+```
+
+### Current API
 We have the following endpoints:
 /api/user(POST)  
 /api/comptenec(GET)  
@@ -83,7 +87,7 @@ The structure of the frontend directories follows react standards.
 ## Run database migration
 
 The database migration solution relies on being provided with environment variables in order to connect to the old database. Placeholders are available in the file `database/example_migration_env` but for clear reasons need to be changed in order to work live.  
-Output is written to the file `database/database_dump.sql`, which is overwritten every time the program is run.  
+Output is written to the files `database/database_dump.sql`, `database/admins_to_email.txt`, and `database/users_to_email.txt`, which are overwritten every time the program is run.  
 It is up to the end user to ensure that this does not become an issue.
 
 ```bash
@@ -91,6 +95,18 @@ source database/example_migration_env    # Set connection credentials as environ
 go run database/dbmigration.go           # Run migration program
 ```
 
+Depending on what columns are missing from a specific person in the database the person and its associated data in other tables will be either:  
+- added to `database_dump.sql` (no missing columns) along with any other associated data
+- added to `[admins|users]_to_email` (missing anything but email if normal user, or having at least a username if admin)
+- discarded completely (missing primary key, or not having an email if user)
+
+```bash
+less database_dump.sql    # View file content in terminal
+less admins_to_email.txt
+less users_to_email.tx
+```
+
+`database_dump.sql` can then be loaded into a Heroku-hosted Postgres database by running the following when logged into Heroku in a terminal.
 This can then be loaded into a Heroku-hosted Postgres database by running the following when logged into Heroku in a terminal.
 
 ```bash
