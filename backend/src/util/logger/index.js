@@ -10,6 +10,9 @@ function log(message) {
   if (logLevel === 'file') {
     return fs.appendFile(logFile, `${timestamp(message)}\n`);
   }
+  if (logLevel === 'none') {
+    return;
+  }
   return new Promise((resolve, reject) => {
     console.log(timestamp(message));
     resolve();
@@ -19,6 +22,9 @@ function log(message) {
 function error(message) {
   if (logLevel === 'file') {
     return fs.appendFile(errorFile, `${timestamp(message)}\n`);
+  }
+  if (logLevel === 'none') {
+    return;
   }
   return new Promise((resolve, reject) => {
     console.error(timestamp(message));

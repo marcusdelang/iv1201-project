@@ -3,6 +3,10 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
 import styles from "../../resources/styles/standardLayoutStyles";
+
+/*
+* Represents a selec field in a form
+*/
 class SelectField extends React.Component {
 
   renderSelects = (ids) => {
