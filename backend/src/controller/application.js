@@ -1,4 +1,4 @@
-const { StoreApplicationError, UpdateApplicationError } = require('./../error');
+const { StoreApplicationError, UpdateApplicationError } = require('./../util/error');
 const logger = require('./../util/logger');
 const {
   Application,
