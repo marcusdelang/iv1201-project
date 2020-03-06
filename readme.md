@@ -38,6 +38,40 @@ Must be run in a separate terminal when the Docker environment is fully up and r
 docker exec -it app npm run test-docker --prefix backend    # Run tests in development env
 ```
 
+## Map structure
+<Project Root>
+│
+├── backend
+│   ├── docs
+│   │   ├── fonts
+│   │   ├── scripts
+│   │   │   └── prettify
+│   │   └── styles
+│   ├── logs
+│   ├── src
+│   │   ├── bin
+│   │   ├── config
+│   │   │   └── logs
+│   │   ├── controller
+│   │   ├── integration
+│   │   ├── logs
+│   │   ├── middlewares
+│   │   │   └── validator
+│   │   ├── model
+│   │   ├── routes
+│   │   └── views
+│   └── __tests__
+├── database
+├── frontend
+│   ├── public
+│   └── src
+│       ├── component
+│       │   └── component
+│       └── resources
+│           └── styles
+└── node_modules
+## Code overview
+
 ## Run database migration
 
 The database migration solution relies on being provided with environment variables in order to connect to the old database. Placeholders are available in the file `database/example_migration_env` but for clear reasons need to be changed in order to work live.  
