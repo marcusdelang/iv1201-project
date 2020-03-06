@@ -72,17 +72,22 @@ Project root
 ```
 
 ### Current API
-We have the following endpoints:
+We have the following endpoints:  
 /api/user(POST)  
 /api/comptenec(GET)  
 /api/application (POST, GET, PUT)  
 /api/logi (POST)  
 ### Backend  
-The backend conforms to the MVC pattern, but without a classic view since there is no backend rendering, the application is a CRUD app. Following REST conventions.  
-- The flow of the application is that a route is added in the route directory taking in a http request, then it calls a controller in the controller directory, the controller uses the models in the model directory and the models has contacts to the DAO:s in the integration layer that connect databasen.
-- When creating a new route use this flow and 
+The backend conforms to the MVC pattern, but without a classic view since there is no backend rendering, the application is a CRUD app, following REST conventions.  
+- The flow of the application: A route is added in the route directory taking in a http request, then it calls a controller in the controller directory, the controller uses the models in the model directory and the models has contacts to the DAO:s in the integration layer that connect databasen.  
+Route -> Controller -> Model -> Integration
+- When creating a new route follow the flow mentioned aboe and the following naming conventions  
+  
+Example: in the route directory there is a file named application with the application route, in the controller directory the application controller is in a file named application, in the model directory the application file contains the application model, all files in route, controller and model share the same name. In the integration directory the file is called applicationDAO and it contains application DAO.
 ### Frontend  
-The structure of the frontend directories follows react standards.
+- React components are divided in components and inner components. In the components map larger components are stored for example, pages and the navbar. The inner components are smaller, have less functionality and are used in other components.
+- New routes need to be added in the app component.
+- New Pages are placed in the components directory
 
 ## Run database migration
 
