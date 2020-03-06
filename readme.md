@@ -67,23 +67,18 @@ Project root
 │       └── resources  
 │           └── styles  
 └── node_modules
-### Current API
+### Current API  
 We have the following endpoints:
-/api/user(POST)
-/api/comptenec(GET) 
-/api/application (POST, GET, PUT)
-/api/logi (POST)
-### Backend
-The backend conforms to the MVC pattern, but without a classic view since there is no backend rendering, the application is a CRUD app. Following REST conventions.
--logs
-In the logs directory you can find access log, 
-### Frontend
-The structure of the frontend directories follows a react standard.
-## Code overview
-### Backend
-### Frontend
-The Frontend
-
+/api/user(POST)  
+/api/comptenec(GET)  
+/api/application (POST, GET, PUT)  
+/api/logi (POST)  
+### Backend  
+The backend conforms to the MVC pattern, but without a classic view since there is no backend rendering, the application is a CRUD app. Following REST conventions.  
+- The flow of the application is that a route is added in the route directory taking in a http request, then it calls a controller in the controller directory, the controller uses the models in the model directory and the models has contacts to the DAO:s in the integration layer that connect databasen.
+- When creating a new route use this flow and 
+### Frontend  
+The structure of the frontend directories follows react standards.
 
 ## Run database migration
 
