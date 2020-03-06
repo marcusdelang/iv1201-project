@@ -3,7 +3,7 @@ const path = require('path');
 const port = process.env.PORT;
 const dbConnectionString = process.env.DATABASE_URL;
 const environment = process.env.NODE_ENV;
-const logFilePath = path.join('..', 'logs');
+const logFilePath = path.join('logs');
 
 let logLevel;
 if (environment === 'heroku') {
