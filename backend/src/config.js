@@ -12,6 +12,8 @@ if (environment === 'heroku') {
   logLevel = 'file';
 } else if (environment === 'development') {
   logLevel = 'console';
+} else if (environment === 'test') {
+  logLevel = 'none';
 }
 
 module.exports = {

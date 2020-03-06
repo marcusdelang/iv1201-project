@@ -1,4 +1,4 @@
-const { AuthError } = require('./../error');
+const { AuthError } = require('./../util/error');
 
 /**
  * Credentials used for authentication.

@@ -1,4 +1,4 @@
-const { StoreUserError, FindUserError } = require('./../error');
+const { StoreUserError, FindUserError } = require('../util/error');
 const { Transaction } = require('./dbh');
 
 const PREPARED_STATEMENT_GET_APPLICANT_ROLE = 'SELECT role_id FROM Role WHERE name = \'applicant\';';

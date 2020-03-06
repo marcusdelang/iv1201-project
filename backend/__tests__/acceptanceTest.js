@@ -1,5 +1,4 @@
 const axios = require('axios');
-const path = require('path');
 const config = require('../src/config');
 
 const { port } = config;
